@@ -21,6 +21,7 @@ namespace StockTradingApplication.ViewModels
                 if (_selectedStock != value)
                 {
                     _selectedStock = value;
+                    BuyStockCommand.RaiseCanExecuteChanged();
                 }
             }
         }
