@@ -4,9 +4,26 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:StockTradingApplication"
+        xmlns:ViewModels="clr-namespace:StockTradingApplication.ViewModels"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+        <Window.DataContext>
+            <ViewModels:MainViewModel />
+        </Window.DataContext>
     <Grid>
-
+        <ListBox ItemsSource="{Binding Stocks}" SelectedItem="{Binding SelectedStock}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock Text="{Binding Symbol}" FontWeight="Bold" />
+                        <TextBlock Text="{Binding Quantity, StringFormat='Quantity: {0}'}" />
+                        <TextBlock Text="{Binding Price, StringFormat='Price: {0:C}'}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <Button Content="Buy Stock" Command="{Binding BuyStockCommand}" 
+                HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10" 
+                Width="200" Height="100" Padding="10" FontSize="22"/>
     </Grid>
 </Window>
