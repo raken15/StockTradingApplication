@@ -1,5 +1,5 @@
 // Models/Stock.cs
-namespace StockTradingApp.Models
+namespace StockTradingApplication.Models
 {
     public class Stock
     {

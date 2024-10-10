@@ -1,4 +1,4 @@
-namespace StockTradingApp.ViewModels
+namespace StockTradingApplication.ViewModels
 {
     public class MainViewModel
     {
