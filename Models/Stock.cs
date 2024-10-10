@@ -1,4 +1,4 @@
-// Models/Stock.cs
+
 namespace StockTradingApplication.Models
 {
     public class Stock
