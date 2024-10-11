@@ -1,7 +1,7 @@
 
 namespace StockTradingApplication.Models
 {
-    public class Stock
+    public class StockModel
     {
         public string Symbol { get; set; }
         public int Quantity { get; set; }

@@ -8,7 +8,7 @@ namespace StockTradingApplication.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged
     {
-        private readonly IRepository<Stock,string> _stockRepository;
+        private readonly IRepository<StockModel, string> _stockRepository;
         private StockViewModel _selectedStock;
         public ObservableCollection<StockViewModel> Stocks { get; set; }
         public RelayCommand BuyStockCommand { get; }
@@ -27,7 +27,7 @@ namespace StockTradingApplication.ViewModels
 
         public MainViewModel()
         {
-            _stockRepository = new StockRepository();
+            _stockRepository = new StockModelRepository();
             Stocks = new ObservableCollection<StockViewModel>();
             InitializeStocks();
 
@@ -64,4 +64,5 @@ namespace StockTradingApplication.ViewModels
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
+
 }

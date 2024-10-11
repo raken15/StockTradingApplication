@@ -5,9 +5,9 @@ namespace StockTradingApplication.ViewModels;
 
 public class StockViewModel : INotifyPropertyChanged
 {
-    private Stock _stock;
+    private StockModel _stock;
 
-    public StockViewModel(Stock stock)
+    public StockViewModel(StockModel stock)
     {
         _stock = stock;
     }

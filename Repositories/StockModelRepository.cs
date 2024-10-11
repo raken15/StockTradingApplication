@@ -3,18 +3,18 @@ using StockTradingApplication.Models;
 
 namespace StockTradingApplication.Repositories;
 
-public class StockRepository : IRepository<Stock, string>
+public class StockModelRepository : IRepository<StockModel, string>
 {
-    private readonly List<Stock> _stocks = new List<Stock>
+    private readonly List<StockModel> _stocks = new List<StockModel>
     {
-        new Stock { Symbol = "AAPL", Quantity = 10, Price = 150.00m },
-        new Stock { Symbol = "GOOGL", Quantity = 5, Price = 2800.00m },
-        new Stock { Symbol = "MSFT", Quantity = 15, Price = 300.00m },
-        new Stock { Symbol = "AMZN", Quantity = 20, Price = 3000.00m },
-        new Stock { Symbol = "TSLA", Quantity = 5, Price = 500.00m }
+        new StockModel { Symbol = "AAPL", Quantity = 10, Price = 150.00m },
+        new StockModel { Symbol = "GOOGL", Quantity = 5, Price = 2800.00m },
+        new StockModel { Symbol = "MSFT", Quantity = 15, Price = 300.00m },
+        new StockModel { Symbol = "AMZN", Quantity = 20, Price = 3000.00m },
+        new StockModel { Symbol = "TSLA", Quantity = 5, Price = 500.00m }
     };
 
-    public Stock Get(string stockSymbol)
+    public StockModel Get(string stockSymbol)
     {
         var stock = _stocks.FirstOrDefault(s => s.Symbol == stockSymbol);
         if (stock == null)
@@ -23,17 +23,17 @@ public class StockRepository : IRepository<Stock, string>
         }
         return stock;
     }
-    public IEnumerable<Stock> GetAll()
+    public IEnumerable<StockModel> GetAll()
     {
         if (_stocks.Count == 0)
         {
             System.Windows.MessageBox.Show("No stocks are currently in the repository.", "Error");
-            return Enumerable.Empty<Stock>();
+            return Enumerable.Empty<StockModel>();
         }
         return _stocks;
     }
 
-    public void Add(Stock stock)
+    public void Add(StockModel stock)
     {
         if (_stocks.Any(x => x.Symbol == stock.Symbol))
         {
@@ -54,21 +54,21 @@ public class StockRepository : IRepository<Stock, string>
             System.Windows.MessageBox.Show($"Stock {stockSymbol} does not exist in the repository.", "Error");
         }
     }
-    public IEnumerable<Stock> GetAllBelowPrice(decimal stockPrice)
+    public IEnumerable<StockModel> GetAllBelowPrice(decimal stockPrice)
     {
         if (_stocks.Count == 0)
         {
             System.Windows.MessageBox.Show("No stocks are currently in the repository.", "Error");
-            return Enumerable.Empty<Stock>();
+            return Enumerable.Empty<StockModel>();
         }
         return _stocks.Where(x => x.Price < stockPrice);
     }
-    public IEnumerable<Stock> GetAllAbovePrice(decimal stockPrice)
+    public IEnumerable<StockModel> GetAllAbovePrice(decimal stockPrice)
     {
         if (_stocks.Count == 0)
         {
             System.Windows.MessageBox.Show("No stocks are currently in the repository.", "Error");
-            return Enumerable.Empty<Stock>();
+            return Enumerable.Empty<StockModel>();
         }
         return _stocks.Where(x => x.Price > stockPrice);
     }
