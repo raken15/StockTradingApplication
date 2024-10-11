@@ -2,18 +2,17 @@ using StockTradingApplication.Models;
 using StockTradingApplication.Repositories;
 using StockTradingApplication.Helpers;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace StockTradingApplication.ViewModels
 {
-    public class MainViewModel
+    public class MainViewModel : INotifyPropertyChanged
     {
         private readonly IRepository<Stock,string> _stockRepository;
-        public ObservableCollection<Stock> Stocks { get; set; }
+        private StockViewModel _selectedStock;
+        public ObservableCollection<StockViewModel> Stocks { get; set; }
         public RelayCommand BuyStockCommand { get; }
-
-        private Stock _selectedStock;
-
-        public Stock SelectedStock
+        public StockViewModel SelectedStock
         {
             get => _selectedStock;
             set
@@ -29,9 +28,18 @@ namespace StockTradingApplication.ViewModels
         public MainViewModel()
         {
             _stockRepository = new StockRepository();
-            Stocks = new ObservableCollection<Stock>(_stockRepository.GetAll());
+            Stocks = new ObservableCollection<StockViewModel>();
+            InitializeStocks();
 
             BuyStockCommand = new RelayCommand(async (param) => await BuyStockAsync(), (param) => CanBuyStock());
+        }
+        private void InitializeStocks()
+        {
+            var stocks = _stockRepository.GetAll();
+            foreach (var stock in stocks)
+            {
+                Stocks.Add(new StockViewModel(stock));
+            }
         }
         private async Task BuyStockAsync()
         {
@@ -41,7 +49,7 @@ namespace StockTradingApplication.ViewModels
                 {
                     // Simulated stock buying logic
                     SelectedStock.Quantity--;
-                    //StockBought?.Invoke(SelectedStock); // Raise event after buying stock
+                    RaisePropertyChanged(nameof(Stocks));
                 });
             }
             BuyStockCommand.RaiseCanExecuteChanged();
@@ -49,6 +57,11 @@ namespace StockTradingApplication.ViewModels
         private bool CanBuyStock()
         {
             return SelectedStock != null && SelectedStock.Quantity > 0; // Can only buy if a stock is selected and has quantity
+        }
+         public event PropertyChangedEventHandler PropertyChanged;
+         private void RaisePropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
