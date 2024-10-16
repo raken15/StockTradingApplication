@@ -24,6 +24,10 @@ namespace StockTradingApplication.ViewModels
                 {
                     _selectedStock = value;
                     BuyStockCommand.RaiseCanExecuteChanged();
+                    if (value != null)
+                    {
+                        SelectedPortfolioStock = null; // Clear SelectedPortfolioStock after SelectedStock is set
+                    }
                 }
             }
         }
@@ -48,6 +52,10 @@ namespace StockTradingApplication.ViewModels
                 {
                     _selectedPortfolioStock = value;
                     SellStockCommand.RaiseCanExecuteChanged();
+                    if (value != null)
+                    {
+                        SelectedStock = null; // Clear SelectedStock after SelectedPortfolioStock is set
+                    }
                 }
             }
         }
