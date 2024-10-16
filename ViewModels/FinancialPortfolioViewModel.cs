@@ -1,14 +1,27 @@
 using System;
 using System.ComponentModel;
 using StockTradingApplication.Models;
+using System.Collections.ObjectModel;
 
 namespace StockTradingApplication.ViewModels;
 
 public class FinancialPortfolioViewModel : INotifyPropertyChanged
 {
     private FinancialPortfolioModel _model;
-    public List<StockViewModel> StocksPorfolio { get; set; }
     private decimal _money; 
+    private ObservableCollection<StockViewModel> _stocksPortfolio;
+    public ObservableCollection<StockViewModel> StocksPortfolio
+    {
+        get { return _stocksPortfolio; }
+        set
+        {
+            if (_stocksPortfolio != value)
+            {
+                _stocksPortfolio = value;
+                RaisePropertyChanged(nameof(StocksPortfolio));
+            }
+        }
+    }
     public decimal Money
     {
         get { return _money; }
@@ -24,7 +37,7 @@ public class FinancialPortfolioViewModel : INotifyPropertyChanged
     public FinancialPortfolioViewModel(FinancialPortfolioModel model)
     {
         _model = model;
-        StocksPorfolio = _model.Stocks.Select(s => new StockViewModel(s)).ToList();
+        _stocksPortfolio = new ObservableCollection<StockViewModel>(_model.Stocks.Select(s => new StockViewModel(s)));
         _money = _model.Money;
     }
     public event PropertyChangedEventHandler PropertyChanged;
