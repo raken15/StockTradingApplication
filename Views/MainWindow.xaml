@@ -10,6 +10,9 @@
         <Window.DataContext>
             <ViewModels:MainViewModel />
         </Window.DataContext>
+        <Window.Resources>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -88,6 +91,18 @@
                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
                     FontSize="22"
                     Grid.Column="2"/>
+        </Grid>
+
+        <!-- Message Overlay Grid -->
+        <Grid Name="MessageOverlay" Grid.RowSpan="3" Grid.ColumnSpan="2"
+             Visibility="{Binding IsMessageVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
+             Background="#80000000">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="{Binding Message}" Margin="10" FontSize="24"
+                     Foreground="White" TextWrapping="Wrap" MaxWidth="400" HorizontalAlignment="Center"/>
+                <Button Content="OK" Command="{Binding CloseMessageCommand}"
+                     FontSize="24" Margin="10" HorizontalAlignment="Center"/>
+            </StackPanel>
         </Grid>
     </Grid>
 </Window>

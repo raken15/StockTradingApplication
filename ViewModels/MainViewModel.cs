@@ -4,7 +4,6 @@ using StockTradingApplication.Helpers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Threading;
-using System.Windows;
 
 namespace StockTradingApplication.ViewModels
 {
@@ -18,6 +17,8 @@ namespace StockTradingApplication.ViewModels
         private DispatcherTimer _timer;
         private DateTime _elapsedTime;
         private DispatcherTimer _elapsedTimeTimer;
+        private string _message;
+        private bool _isMessageVisible;
         #endregion
         #region Properties
         public ObservableCollection<StockViewModel> Stocks { get; set; }
@@ -73,11 +74,37 @@ namespace StockTradingApplication.ViewModels
                 return _elapsedTime.ToString("HH:mm:ss");
             }
         }
+        public string Message
+        {
+            get { return _message; }
+            set
+            {
+                if (_message != value)
+                {
+                    _message = value;
+                    RaisePropertyChanged(nameof(Message));
+                }
+            }
+        }
+
+        public bool IsMessageVisible
+        {
+            get { return _isMessageVisible; }
+            set
+            {
+                if (_isMessageVisible != value)
+                {
+                    _isMessageVisible = value;
+                    RaisePropertyChanged(nameof(IsMessageVisible));
+                }
+            }
+        }
         #endregion
         #region Commands
         public RelayCommand BuyStockCommand { get; }
         public RelayCommand SellStockCommand { get; }
         public RelayCommand RestartCommand { get; }
+        public RelayCommand CloseMessageCommand { get; }
         #endregion
         #region Constructor and initialization
         public MainViewModel()
@@ -96,6 +123,7 @@ namespace StockTradingApplication.ViewModels
             BuyStockCommand = new RelayCommand(async (param) => await BuyStockAsync(), (param) => CanBuyStock());
             SellStockCommand = new RelayCommand(async (param) => await SellStockAsync(), (param) => CanSellStock());
             RestartCommand = new RelayCommand(Restart);
+            CloseMessageCommand = new RelayCommand(CloseMessage);
 
             _timer = new DispatcherTimer();
             _timer.Interval = TimeSpan.FromMinutes(1);
@@ -171,7 +199,13 @@ namespace StockTradingApplication.ViewModels
         {
             return SelectedPortfolioStock != null && SelectedPortfolioStock.Quantity > 0; // Can only buy if a stock is selected and has quantity
         }
+        private void ShowMessage(string message)
+        {
+            Message = message;
+            IsMessageVisible = true;
+        }
         #endregion
+        #region Event handlers
         #region Timer event handler
         private void UpdateStockPrices(object sender, EventArgs e)
         {
@@ -209,17 +243,23 @@ namespace StockTradingApplication.ViewModels
             {
                 if (FinancialPortfolio.Money >= 10000)
                 {
-                    if (MessageBox.Show("You win! clicking ok will restart the game", "Congratulations!", MessageBoxButton.OK, MessageBoxImage.Information) == MessageBoxResult.OK)
-                    {
-                        Restart(null);
-                    }
+                    _timer.Stop();
+                    _elapsedTimeTimer.Stop();
+                    ShowMessage("Congratulations! You win! you reached $10000, clicking ok will restart the game");
+                    // if (MessageBox.Show("You win! clicking ok will restart the game", "Congratulations!", MessageBoxButton.OK, MessageBoxImage.Information) == MessageBoxResult.OK)
+                    // {
+                    //     Restart(null);
+                    // }
                 }
-                else if (FinancialPortfolio.Money <= 0)
+                else if (FinancialPortfolio.Money < 1)
                 {
-                    if (MessageBox.Show("You Lose! try not to let your money be 0 or less, you can try again if you wish, clicking ok will restart the game", "Game Over!", MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
-                    {
-                        Restart(null);
-                    }
+                    _timer.Stop();
+                    _elapsedTimeTimer.Stop();
+                    ShowMessage("Game Over! You Lose! you have less than $1, you can try again if you wish, clicking ok will restart the game");
+                    // if (MessageBox.Show("You Lose! try not to let your money be 0 or less, you can try again if you wish, clicking ok will restart the game", "Game Over!", MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                    // {
+                    //     Restart(null);
+                    // }
                 }
             }
         }
@@ -243,6 +283,14 @@ namespace StockTradingApplication.ViewModels
             _elapsedTime = default(DateTime);
             _elapsedTimeTimer.Start();
         }
+        #endregion
+        #region CloseMessage event handler
+        private void CloseMessage(object obj)
+        {
+            IsMessageVisible = false;
+            Restart(null);
+        }
+        #endregion
         #endregion
     }
 }
