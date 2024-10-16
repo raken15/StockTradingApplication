@@ -42,12 +42,12 @@
         <!-- Money textbox -->
         <Grid Grid.Column="1" Grid.Row="1">
             
-            <Button Command="{Binding RestartCommand}" FontSize="14"
+            <Button Command="{Binding RestartCommand}" FontSize="20"
                 HorizontalAlignment="Center" VerticalAlignment="Center">
                 Restart
             </Button>
-            <Label Content="{Binding ElapsedTime}" FontSize="14"
-                HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+            <Label Content="{Binding ElapsedTime}" FontSize="20"
+                HorizontalAlignment="Right" VerticalAlignment="Top"/>
         </Grid>
 
         <!-- Financial portfolio with data grid and label -->
