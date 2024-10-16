@@ -36,8 +36,13 @@
 
         <!-- Money textbox -->
         <Grid Grid.Column="1" Grid.Row="0">
-            <Label Content="{Binding FinancialPortfolio.Money}" FontSize="18"
-                HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Label FontSize="18"
+                HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock>
+                    <Run Text="Money: " />
+                    <Run Text="{Binding FinancialPortfolio.Money, StringFormat={}{0:C}}" />
+                </TextBlock>
+            </Label>
             <Button Command="{Binding RestartCommand}" FontSize="14"
                 HorizontalAlignment="Center" VerticalAlignment="Top">
                 Restart
@@ -53,7 +58,7 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}"/>
                     <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}"/>
-                    <DataGridTextColumn Header="Price" Binding="{Binding Price}"/>
+                    <DataGridTextColumn Header="Price" Binding="{Binding Price, StringFormat={}{0:C}}" />
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
