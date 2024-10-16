@@ -11,7 +11,7 @@ namespace StockTradingApplication.ViewModels
     public class MainViewModel : INotifyPropertyChanged
     {
         #region Fields
-        private readonly IRepository<StockModel, string> _stockRepository;
+        private IRepository<StockModel, string> _stockRepository;
         private StockViewModel _selectedStock;
         private FinancialPortfolioViewModel _financialPortfolio;
         private StockViewModel _selectedPortfolioStock;
@@ -191,11 +191,17 @@ namespace StockTradingApplication.ViewModels
             {
                 if (FinancialPortfolio.Money >= 10000)
                 {
-                    MessageBox.Show("You win! you can continue if you wish :)", "Congratulations!", MessageBoxButton.OK, MessageBoxImage.Information);
+                    if (MessageBox.Show("You win! clicking ok will restart the game", "Congratulations!", MessageBoxButton.OK, MessageBoxImage.Information) == MessageBoxResult.OK)
+                    {
+                        Restart(null);
+                    }
                 }
                 else if (FinancialPortfolio.Money <= 0)
                 {
-                    MessageBox.Show("You Lose! try not to let your money be 0 or less", "Game Over!", MessageBoxButton.OK, MessageBoxImage.Error);
+                    if (MessageBox.Show("You Lose! try not to let your money be 0 or less, you can try again if you wish, clicking ok will restart the game", "Game Over!", MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
+                    {
+                        Restart(null);
+                    }
                 }
             }
         }
@@ -209,7 +215,9 @@ namespace StockTradingApplication.ViewModels
                 Stocks = new List<StockModel>()
             };
             FinancialPortfolio = new FinancialPortfolioViewModel(financialPortfolioModel);
+            FinancialPortfolio.PropertyChanged += FinancialPortfolio_PropertyChanged;
 
+            _stockRepository = new StockModelRepository();
             Stocks.Clear();
             InitializeStocks();
 
