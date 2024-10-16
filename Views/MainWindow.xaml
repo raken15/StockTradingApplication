@@ -11,7 +11,18 @@
             <ViewModels:MainViewModel />
         </Window.DataContext>
     <Grid>
-        <ListBox ItemsSource="{Binding Stocks}" SelectedItem="{Binding SelectedStock}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ListBox of stocks -->
+        <ListBox ItemsSource="{Binding Stocks}" SelectedItem="{Binding SelectedStock}"
+            Grid.Column="0" Grid.Row="0">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Vertical">
@@ -22,8 +33,40 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <Button Content="Buy Stock" Command="{Binding BuyStockCommand}" 
-                HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10" 
-                Width="200" Height="100" Padding="10" FontSize="22"/>
+
+        <!-- Money textbox -->
+        <Grid Grid.Column="1" Grid.Row="0">
+            <Label Content="{Binding FinancialPortfolio.Money}" FontSize="18"
+                HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
+
+        <!-- Financial portfolio with data grid and label -->
+        <Grid Grid.Column="0" Grid.Row="1">
+            <DataGrid ItemsSource="{Binding FinancialPortfolio.StocksPortfolio}" SelectedItem="{Binding SelectedPortfolioStock}"
+                 AutoGenerateColumns="False" SelectionMode="Single" Width="400" Margin="10">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}"/>
+                    <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}"/>
+                    <DataGridTextColumn Header="Price" Binding="{Binding Price}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+
+        <!-- Buttons to buy and sell stocks -->
+        <Grid Grid.Column="1" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="20"/> <!-- add a 20 pixel gap -->
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button Content="Buy Stock" Command="{Binding BuyStockCommand}" 
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    FontSize="22"
+                    Grid.Column="0"/>
+            <Button Content="Sell Stock" Command="{Binding SellStockCommand}" 
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                    FontSize="22"
+                    Grid.Column="2"/>
+        </Grid>
     </Grid>
 </Window>
