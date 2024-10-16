@@ -3,18 +3,22 @@ using StockTradingApplication.Repositories;
 using StockTradingApplication.Helpers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Windows.Threading;
 
 namespace StockTradingApplication.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged
     {
+        #region Fields
         private readonly IRepository<StockModel, string> _stockRepository;
         private StockViewModel _selectedStock;
         private FinancialPortfolioViewModel _financialPortfolio;
         private StockViewModel _selectedPortfolioStock;
+        private DispatcherTimer _timer;
+        #endregion
+        #region Properties
         public ObservableCollection<StockViewModel> Stocks { get; set; }
-        public RelayCommand BuyStockCommand { get; }
-        public RelayCommand SellStockCommand { get; }
+        
         public StockViewModel SelectedStock
         {
             get => _selectedStock;
@@ -59,6 +63,12 @@ namespace StockTradingApplication.ViewModels
                 }
             }
         }
+        #endregion
+        #region Commands
+        public RelayCommand BuyStockCommand { get; }
+        public RelayCommand SellStockCommand { get; }
+        #endregion
+        #region Constructor and initialization
         public MainViewModel()
         {
             _stockRepository = new StockModelRepository();
@@ -67,13 +77,18 @@ namespace StockTradingApplication.ViewModels
 
             var financialPortfolioModel = new FinancialPortfolioModel
             {
-                Money = 1000.0m,
+                Money = 1000.0f,
                 Stocks = new List<StockModel>()
             };
             FinancialPortfolio = new FinancialPortfolioViewModel(financialPortfolioModel);
 
             BuyStockCommand = new RelayCommand(async (param) => await BuyStockAsync(), (param) => CanBuyStock());
             SellStockCommand = new RelayCommand(async (param) => await SellStockAsync(), (param) => CanSellStock());
+
+            _timer = new DispatcherTimer();
+            _timer.Interval = TimeSpan.FromMinutes(1);
+            _timer.Tick += UpdateStockPrices;
+            _timer.Start();
         }
         private void InitializeStocks()
         {
@@ -83,6 +98,8 @@ namespace StockTradingApplication.ViewModels
                 Stocks.Add(new StockViewModel(stock));
             }
         }
+        #endregion
+        #region Methods
         private async Task BuyStockAsync()
         {
             if (SelectedStock != null)
@@ -131,12 +148,36 @@ namespace StockTradingApplication.ViewModels
         {
             return SelectedPortfolioStock != null && SelectedPortfolioStock.Quantity > 0; // Can only buy if a stock is selected and has quantity
         }
+        #endregion
+        #region Timer event handler
+        private void UpdateStockPrices(object sender, EventArgs e)
+        {
+            var random = new Random();
+            var stocks = Stocks.ToList();
+            var portfolioStocks = FinancialPortfolio.StocksPortfolio.ToList();
 
+            foreach (var stock in stocks)
+            {
+                var newPrice = random.Next(1,4001) + random.Next(100) / 100.0f;
+                stock.Price = newPrice;
+
+                var portfolioStock = portfolioStocks.FirstOrDefault(ps => ps.Symbol == stock.Symbol);
+                if (portfolioStock != null)
+                {
+                    portfolioStock.Price = newPrice;
+                }
+            }
+
+            RaisePropertyChanged(nameof(Stocks));
+            RaisePropertyChanged(nameof(FinancialPortfolio));
+        }
+        #endregion
+        #region PropertyChanged event handler
          public event PropertyChangedEventHandler PropertyChanged;
          private void RaisePropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+        #endregion
     }
-
 }

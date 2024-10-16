@@ -35,7 +35,7 @@ public class StockViewModel : INotifyPropertyChanged
             }
         }
     }
-    public decimal Price
+    public float Price
     {
         get => _stock.Price;
         set
