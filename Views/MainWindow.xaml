@@ -16,13 +16,18 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />  <!-- Header row -->
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <Label Grid.Row="0" Grid.ColumnSpan="2" Content="Stock Trading Application"
+                 FontSize="30" FontWeight="Bold" HorizontalAlignment="Center" Margin="10"
+                 VerticalAlignment="Center"/>
+
         <!-- ListBox of stocks -->
         <ListBox ItemsSource="{Binding Stocks}" SelectedItem="{Binding SelectedStock}"
-            Grid.Column="0" Grid.Row="0">
+            Grid.Column="0" Grid.Row="1">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Vertical">
@@ -35,10 +40,8 @@
         </ListBox>
 
         <!-- Money textbox -->
-        <Grid Grid.Column="1" Grid.Row="0">
-            <Label Content="Stock Trading Application"
-                 FontSize="30" FontWeight="Bold" HorizontalAlignment="Left" Margin="10"
-                 VerticalAlignment="Top"/>
+        <Grid Grid.Column="1" Grid.Row="1">
+            
             <Button Command="{Binding RestartCommand}" FontSize="14"
                 HorizontalAlignment="Center" VerticalAlignment="Center">
                 Restart
@@ -48,7 +51,7 @@
         </Grid>
 
         <!-- Financial portfolio with data grid and label -->
-        <Grid Grid.Column="0" Grid.Row="1">
+        <Grid Grid.Column="0" Grid.Row="2">
             <Label Content="Financial Portfolio"
                  FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" Margin="10"
                  VerticalAlignment="Top"/>
@@ -71,7 +74,7 @@
         </Grid>
 
         <!-- Buttons to buy and sell stocks -->
-        <Grid Grid.Column="1" Grid.Row="1">
+        <Grid Grid.Column="1" Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="20"/> <!-- add a 20 pixel gap -->
