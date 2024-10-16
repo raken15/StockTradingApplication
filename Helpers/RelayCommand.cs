@@ -2,7 +2,7 @@
 using System;
 using System.Windows.Input;
 
-namespace StockTradingApp.Helpers
+namespace StockTradingApplication.Helpers
 {
     /// <summary>
     /// Defines the RelayCommand class, which implements the ICommand interface. 
