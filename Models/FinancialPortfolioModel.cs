@@ -1,5 +1,3 @@
-using System;
-
 namespace StockTradingApplication.Models;
 
 public class FinancialPortfolioModel

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace StockTradingApplication.Repositories
 {
     public interface IRepository<T, K> where T : notnull where K : notnull
