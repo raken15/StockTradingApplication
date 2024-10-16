@@ -4,6 +4,7 @@ using StockTradingApplication.Helpers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Threading;
+using System.Windows;
 
 namespace StockTradingApplication.ViewModels
 {
@@ -67,6 +68,7 @@ namespace StockTradingApplication.ViewModels
         #region Commands
         public RelayCommand BuyStockCommand { get; }
         public RelayCommand SellStockCommand { get; }
+        public RelayCommand RestartCommand { get; }
         #endregion
         #region Constructor and initialization
         public MainViewModel()
@@ -84,11 +86,14 @@ namespace StockTradingApplication.ViewModels
 
             BuyStockCommand = new RelayCommand(async (param) => await BuyStockAsync(), (param) => CanBuyStock());
             SellStockCommand = new RelayCommand(async (param) => await SellStockAsync(), (param) => CanSellStock());
+            RestartCommand = new RelayCommand(Restart);
 
             _timer = new DispatcherTimer();
-            _timer.Interval = TimeSpan.FromMinutes(1);
+            _timer.Interval = TimeSpan.FromMinutes(0.3);
             _timer.Tick += UpdateStockPrices;
             _timer.Start();
+
+            FinancialPortfolio.PropertyChanged += FinancialPortfolio_PropertyChanged;
         }
         private void InitializeStocks()
         {
@@ -177,6 +182,38 @@ namespace StockTradingApplication.ViewModels
          private void RaisePropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+        #endregion
+        #region FinancialPortfolioPropertyChanged event handler
+        private void FinancialPortfolio_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(FinancialPortfolioViewModel.Money))
+            {
+                if (FinancialPortfolio.Money >= 10000)
+                {
+                    MessageBox.Show("You win! you can continue if you wish :)", "Congratulations!", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else if (FinancialPortfolio.Money <= 0)
+                {
+                    MessageBox.Show("You Lose! try not to let your money be 0 or less", "Game Over!", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+        #endregion
+        #region Restart event handler
+        private void Restart(object obj)
+        {
+            var financialPortfolioModel = new FinancialPortfolioModel
+            {
+                Money = 1000.0f,
+                Stocks = new List<StockModel>()
+            };
+            FinancialPortfolio = new FinancialPortfolioViewModel(financialPortfolioModel);
+
+            Stocks.Clear();
+            InitializeStocks();
+
+            _timer.Start();
         }
         #endregion
     }

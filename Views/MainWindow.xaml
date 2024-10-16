@@ -38,6 +38,10 @@
         <Grid Grid.Column="1" Grid.Row="0">
             <Label Content="{Binding FinancialPortfolio.Money}" FontSize="18"
                 HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Button Command="{Binding RestartCommand}" FontSize="14"
+                HorizontalAlignment="Center" VerticalAlignment="Top">
+                Restart
+            </Button>
         </Grid>
 
         <!-- Financial portfolio with data grid and label -->
