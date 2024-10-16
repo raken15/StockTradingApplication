@@ -16,6 +16,8 @@ namespace StockTradingApplication.ViewModels
         private FinancialPortfolioViewModel _financialPortfolio;
         private StockViewModel _selectedPortfolioStock;
         private DispatcherTimer _timer;
+        private DateTime _elapsedTime;
+        private DispatcherTimer _elapsedTimeTimer;
         #endregion
         #region Properties
         public ObservableCollection<StockViewModel> Stocks { get; set; }
@@ -64,6 +66,13 @@ namespace StockTradingApplication.ViewModels
                 }
             }
         }
+        public string ElapsedTime
+        {
+            get
+            {
+                return _elapsedTime.ToString("HH:mm:ss");
+            }
+        }
         #endregion
         #region Commands
         public RelayCommand BuyStockCommand { get; }
@@ -94,6 +103,15 @@ namespace StockTradingApplication.ViewModels
             _timer.Start();
 
             FinancialPortfolio.PropertyChanged += FinancialPortfolio_PropertyChanged;
+
+            _elapsedTime = default(DateTime);
+            _elapsedTimeTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+            _elapsedTimeTimer.Tick += (sender, args) =>
+            {
+                _elapsedTime = _elapsedTime.AddSeconds(1);
+                RaisePropertyChanged(nameof(ElapsedTime));
+            };
+            _elapsedTimeTimer.Start();
         }
         private void InitializeStocks()
         {
@@ -222,6 +240,8 @@ namespace StockTradingApplication.ViewModels
             InitializeStocks();
 
             _timer.Start();
+            _elapsedTime = default(DateTime);
+            _elapsedTimeTimer.Start();
         }
         #endregion
     }

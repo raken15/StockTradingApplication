@@ -42,6 +42,8 @@
                 HorizontalAlignment="Center" VerticalAlignment="Top">
                 Restart
             </Button>
+            <Label Content="{Binding ElapsedTime}" FontSize="14"
+                HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
         </Grid>
 
         <!-- Financial portfolio with data grid and label -->
