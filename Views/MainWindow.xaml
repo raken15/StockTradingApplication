@@ -36,15 +36,11 @@
 
         <!-- Money textbox -->
         <Grid Grid.Column="1" Grid.Row="0">
-            <Label FontSize="18"
-                HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock>
-                    <Run Text="Money: " />
-                    <Run Text="{Binding FinancialPortfolio.Money, StringFormat={}{0:C}}" />
-                </TextBlock>
-            </Label>
+            <Label Content="Stock Trading Application"
+                 FontSize="30" FontWeight="Bold" HorizontalAlignment="Left" Margin="10"
+                 VerticalAlignment="Top"/>
             <Button Command="{Binding RestartCommand}" FontSize="14"
-                HorizontalAlignment="Center" VerticalAlignment="Top">
+                HorizontalAlignment="Center" VerticalAlignment="Center">
                 Restart
             </Button>
             <Label Content="{Binding ElapsedTime}" FontSize="14"
@@ -53,14 +49,25 @@
 
         <!-- Financial portfolio with data grid and label -->
         <Grid Grid.Column="0" Grid.Row="1">
+            <Label Content="Financial Portfolio"
+                 FontSize="18" FontWeight="Bold" HorizontalAlignment="Center" Margin="10"
+                 VerticalAlignment="Top"/>
             <DataGrid ItemsSource="{Binding FinancialPortfolio.StocksPortfolio}" SelectedItem="{Binding SelectedPortfolioStock}"
-                 AutoGenerateColumns="False" SelectionMode="Single" Width="400" Margin="10">
+                 AutoGenerateColumns="False" SelectionMode="Single" Margin="10" HorizontalAlignment="Left"
+                 VerticalAlignment="Center">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}"/>
                     <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}"/>
                     <DataGridTextColumn Header="Price" Binding="{Binding Price, StringFormat={}{0:C}}" />
                 </DataGrid.Columns>
             </DataGrid>
+            <Label FontSize="18"
+                HorizontalAlignment="Right" VerticalAlignment="Center">
+                <TextBlock>
+                    <Run Text="Money: " />
+                    <Run Text="{Binding FinancialPortfolio.Money, StringFormat={}{0:C}}" />
+                </TextBlock>
+            </Label>
         </Grid>
 
         <!-- Buttons to buy and sell stocks -->
