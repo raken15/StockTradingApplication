@@ -8,7 +8,7 @@ namespace StockTradingApplication.ViewModels;
 public class FinancialPortfolioViewModel : INotifyPropertyChanged
 {
     private FinancialPortfolioModel _model;
-    private decimal _money; 
+    private float _money; 
     private ObservableCollection<StockViewModel> _stocksPortfolio;
     public ObservableCollection<StockViewModel> StocksPortfolio
     {
@@ -22,7 +22,7 @@ public class FinancialPortfolioViewModel : INotifyPropertyChanged
             }
         }
     }
-    public decimal Money
+    public float Money
     {
         get { return _money; }
         set
