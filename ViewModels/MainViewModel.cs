@@ -163,18 +163,25 @@ namespace StockTradingApplication.ViewModels
         }
         private void InitializeTimers()
         {
-            _timer = new DispatcherTimer { Interval = TimeSpan.FromMinutes(1) };
-            _timer.Tick += UpdateStockPrices;
-            _timer.Start();
-
             _elapsedTime = default(DateTime);
-            _elapsedTimeTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-            _elapsedTimeTimer.Tick += (sender, args) =>
+            if(_timer != null && _elapsedTimeTimer != null)
             {
-                _elapsedTime = _elapsedTime.AddSeconds(1);
-                RaisePropertyChanged(nameof(ElapsedTime));
-            };
-            _elapsedTimeTimer.Start();
+                _timer.Start();
+                _elapsedTimeTimer.Start();
+            }
+            else
+            {
+                _timer = new DispatcherTimer { Interval = TimeSpan.FromMinutes(1) };
+                _timer.Tick += UpdateStockPrices;
+                _timer.Start();
+                _elapsedTimeTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+                _elapsedTimeTimer.Tick += (sender, args) =>
+                {
+                    _elapsedTime = _elapsedTime.AddSeconds(1);
+                    RaisePropertyChanged(nameof(ElapsedTime));
+                };
+                _elapsedTimeTimer.Start();
+            }
         }
         #endregion
         #region Methods
@@ -258,8 +265,8 @@ namespace StockTradingApplication.ViewModels
         }
         #endregion
         #region PropertyChanged event handler
-         public event PropertyChangedEventHandler PropertyChanged;
-         private void RaisePropertyChanged(string propertyName)
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void RaisePropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
@@ -287,16 +294,14 @@ namespace StockTradingApplication.ViewModels
         {
             InitializeFinancialPortfolio();
             InitializeStockRepository();
-            _timer.Start();
-            _elapsedTime = default(DateTime);
-            _elapsedTimeTimer.Start();
+            InitializeTimers();
         }
         #endregion
         #region CloseMessage event handler
         private void CloseMessage(object obj)
         {
-            IsMessageVisible = false;
             Restart(null);
+            IsMessageVisible = false;
         }
         #endregion
         #endregion
