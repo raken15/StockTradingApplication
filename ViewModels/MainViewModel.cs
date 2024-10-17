@@ -138,13 +138,21 @@ namespace StockTradingApplication.ViewModels
         }
         private void InitializeFinancialPortfolio()
         {
-            var financialPortfolioModel = new FinancialPortfolioModel
+            if(FinancialPortfolio == null)
             {
-                Money = 1000.0f,
-                Stocks = new List<StockModel>()
-            };
-            FinancialPortfolio = new FinancialPortfolioViewModel(financialPortfolioModel);
-            FinancialPortfolio.PropertyChanged += FinancialPortfolio_PropertyChanged;
+                var financialPortfolioModel = new FinancialPortfolioModel
+                {
+                    Money = 1000.0f,
+                    Stocks = new List<StockModel>()
+                };
+                FinancialPortfolio = new FinancialPortfolioViewModel(financialPortfolioModel);
+                FinancialPortfolio.PropertyChanged += FinancialPortfolio_PropertyChanged;
+            }
+            else
+            {
+                FinancialPortfolio.StocksPortfolio.Clear();
+                FinancialPortfolio.Money = 1000.0f;
+            }
         }
         private void InitializeCommands()
         {
