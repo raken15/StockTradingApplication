@@ -1,4 +1,3 @@
-using System;
 using System.ComponentModel;
 using StockTradingApplication.Models;
 using System.Collections.ObjectModel;

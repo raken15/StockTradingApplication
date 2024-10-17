@@ -1,5 +1,4 @@
 // Helpers/RelayCommand.cs
-using System;
 using System.Windows.Input;
 
 namespace StockTradingApplication.Helpers

@@ -1,4 +1,3 @@
-using System;
 using StockTradingApplication.Models;
 
 namespace StockTradingApplication.Repositories;

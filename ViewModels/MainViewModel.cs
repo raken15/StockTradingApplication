@@ -4,7 +4,7 @@ using StockTradingApplication.Helpers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Threading;
-using System.Windows;
+using System.Windows.Input;
 
 namespace StockTradingApplication.ViewModels
 {
@@ -16,6 +16,10 @@ namespace StockTradingApplication.ViewModels
         private FinancialPortfolioViewModel _financialPortfolio;
         private StockViewModel _selectedPortfolioStock;
         private DispatcherTimer _timer;
+        private DateTime _elapsedTime;
+        private DispatcherTimer _elapsedTimeTimer;
+        private string _message;
+        private bool _isMessageVisible;
         #endregion
         #region Properties
         public ObservableCollection<StockViewModel> Stocks { get; set; }
@@ -64,43 +68,119 @@ namespace StockTradingApplication.ViewModels
                 }
             }
         }
+        public string ElapsedTime
+        {
+            get
+            {
+                return _elapsedTime.ToString("HH:mm:ss");
+            }
+        }
+        public string Message
+        {
+            get { return _message; }
+            set
+            {
+                if (_message != value)
+                {
+                    _message = value;
+                    RaisePropertyChanged(nameof(Message));
+                }
+            }
+        }
+
+        public bool IsMessageVisible
+        {
+            get { return _isMessageVisible; }
+            set
+            {
+                if (_isMessageVisible != value)
+                {
+                    _isMessageVisible = value;
+                    RaisePropertyChanged(nameof(IsMessageVisible));
+                }
+            }
+        }
         #endregion
         #region Commands
-        public RelayCommand BuyStockCommand { get; }
-        public RelayCommand SellStockCommand { get; }
-        public RelayCommand RestartCommand { get; }
+        public RelayCommand BuyStockCommand { get; set; }
+        public RelayCommand SellStockCommand { get; set; }
+        public RelayCommand RestartCommand { get; set; }
+        public RelayCommand CloseMessageCommand { get; set; }
         #endregion
         #region Constructor and initialization
         public MainViewModel()
         {
+            InitializeStockRepository();
+            InitializeFinancialPortfolio();
+            InitializeCommands();
+            InitializeTimers();
+        }
+        private void InitializeStockRepository()
+        {
             _stockRepository = new StockModelRepository();
-            Stocks = new ObservableCollection<StockViewModel>();
             InitializeStocks();
-
-            var financialPortfolioModel = new FinancialPortfolioModel
-            {
-                Money = 1000.0f,
-                Stocks = new List<StockModel>()
-            };
-            FinancialPortfolio = new FinancialPortfolioViewModel(financialPortfolioModel);
-
-            BuyStockCommand = new RelayCommand(async (param) => await BuyStockAsync(), (param) => CanBuyStock());
-            SellStockCommand = new RelayCommand(async (param) => await SellStockAsync(), (param) => CanSellStock());
-            RestartCommand = new RelayCommand(Restart);
-
-            _timer = new DispatcherTimer();
-            _timer.Interval = TimeSpan.FromMinutes(1);
-            _timer.Tick += UpdateStockPrices;
-            _timer.Start();
-
-            FinancialPortfolio.PropertyChanged += FinancialPortfolio_PropertyChanged;
         }
         private void InitializeStocks()
         {
+            if(Stocks == null)
+            {
+                Stocks = new ObservableCollection<StockViewModel>();
+            }
+            else
+            {
+                Stocks.Clear();
+            }
             var stocks = _stockRepository.GetAll();
             foreach (var stock in stocks)
             {
                 Stocks.Add(new StockViewModel(stock));
+            }
+        }
+        private void InitializeFinancialPortfolio()
+        {
+            if(FinancialPortfolio == null)
+            {
+                var financialPortfolioModel = new FinancialPortfolioModel
+                {
+                    Money = 1000.0f,
+                    Stocks = new List<StockModel>()
+                };
+                FinancialPortfolio = new FinancialPortfolioViewModel(financialPortfolioModel);
+                FinancialPortfolio.PropertyChanged += FinancialPortfolio_PropertyChanged;
+            }
+            else
+            {
+                FinancialPortfolio.StocksPortfolio.Clear();
+                FinancialPortfolio.Money = 1000.0f;
+            }
+        }
+        private void InitializeCommands()
+        {
+            BuyStockCommand = new RelayCommand(async (param) => await BuyStockAsync(), (param) => CanBuyStock());
+            SellStockCommand = new RelayCommand(async (param) => await SellStockAsync(), (param) => CanSellStock());
+            RestartCommand = new RelayCommand(Restart);
+            CloseMessageCommand = new RelayCommand(CloseMessage);
+        }
+        private void InitializeTimers()
+        {
+            _elapsedTime = default(DateTime);
+            if(_timer != null && _elapsedTimeTimer != null)
+            {
+                _timer.Start();
+                _elapsedTimeTimer.Start();
+            }
+            else
+            {
+                _timer = new DispatcherTimer { Interval = TimeSpan.FromMinutes(1) };
+                _timer.Tick += UpdateStockPrices;
+                _timer.Start();
+                _elapsedTimeTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+                _elapsedTimeTimer.Tick += (sender, args) =>
+                {
+                    _elapsedTime = _elapsedTime.AddSeconds(1);
+                    RaisePropertyChanged(nameof(ElapsedTime));
+                };
+                _elapsedTimeTimer.Start();
             }
         }
         #endregion
@@ -153,33 +233,40 @@ namespace StockTradingApplication.ViewModels
         {
             return SelectedPortfolioStock != null && SelectedPortfolioStock.Quantity > 0; // Can only buy if a stock is selected and has quantity
         }
+        private void ShowMessage(string message)
+        {
+            Message = message;
+            IsMessageVisible = true;
+        }
+        private void StopTimers()
+        {
+            _timer.Stop();
+            _elapsedTimeTimer.Stop();
+        }
         #endregion
-        #region Timer event handler
+        #region Event handlers
+        #region Update stock prices handler
         private void UpdateStockPrices(object sender, EventArgs e)
         {
             var random = new Random();
-            var stocks = Stocks.ToList();
-            var portfolioStocks = FinancialPortfolio.StocksPortfolio.ToList();
-
-            foreach (var stock in stocks)
+            foreach (var stock in Stocks)
             {
                 var newPrice = random.Next(1,4001) + random.Next(100) / 100.0f;
                 stock.Price = newPrice;
 
-                var portfolioStock = portfolioStocks.FirstOrDefault(ps => ps.Symbol == stock.Symbol);
+                var portfolioStock = FinancialPortfolio.StocksPortfolio.FirstOrDefault(ps => ps.Symbol == stock.Symbol);
                 if (portfolioStock != null)
                 {
                     portfolioStock.Price = newPrice;
                 }
             }
-
             RaisePropertyChanged(nameof(Stocks));
             RaisePropertyChanged(nameof(FinancialPortfolio));
         }
         #endregion
         #region PropertyChanged event handler
-         public event PropertyChangedEventHandler PropertyChanged;
-         private void RaisePropertyChanged(string propertyName)
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void RaisePropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
@@ -191,17 +278,13 @@ namespace StockTradingApplication.ViewModels
             {
                 if (FinancialPortfolio.Money >= 10000)
                 {
-                    if (MessageBox.Show("You win! clicking ok will restart the game", "Congratulations!", MessageBoxButton.OK, MessageBoxImage.Information) == MessageBoxResult.OK)
-                    {
-                        Restart(null);
-                    }
+                    StopTimers();
+                    ShowMessage("Congratulations! You win! you reached $10000, clicking ok will restart the game");
                 }
-                else if (FinancialPortfolio.Money <= 0)
+                else if (FinancialPortfolio.Money < 1)
                 {
-                    if (MessageBox.Show("You Lose! try not to let your money be 0 or less, you can try again if you wish, clicking ok will restart the game", "Game Over!", MessageBoxButton.OK, MessageBoxImage.Error) == MessageBoxResult.OK)
-                    {
-                        Restart(null);
-                    }
+                    StopTimers();
+                    ShowMessage("Game Over! You Lose! you have less than $1, you can try again if you wish, clicking ok will restart the game");
                 }
             }
         }
@@ -209,20 +292,18 @@ namespace StockTradingApplication.ViewModels
         #region Restart event handler
         private void Restart(object obj)
         {
-            var financialPortfolioModel = new FinancialPortfolioModel
-            {
-                Money = 1000.0f,
-                Stocks = new List<StockModel>()
-            };
-            FinancialPortfolio = new FinancialPortfolioViewModel(financialPortfolioModel);
-            FinancialPortfolio.PropertyChanged += FinancialPortfolio_PropertyChanged;
-
-            _stockRepository = new StockModelRepository();
-            Stocks.Clear();
-            InitializeStocks();
-
-            _timer.Start();
+            InitializeFinancialPortfolio();
+            InitializeStockRepository();
+            InitializeTimers();
         }
+        #endregion
+        #region CloseMessage event handler
+        private void CloseMessage(object obj)
+        {
+            Restart(null);
+            IsMessageVisible = false;
+        }
+        #endregion
         #endregion
     }
 }
