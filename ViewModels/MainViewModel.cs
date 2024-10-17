@@ -125,8 +125,7 @@ namespace StockTradingApplication.ViewModels
             RestartCommand = new RelayCommand(Restart);
             CloseMessageCommand = new RelayCommand(CloseMessage);
 
-            _timer = new DispatcherTimer();
-            _timer.Interval = TimeSpan.FromMinutes(1);
+            _timer = new DispatcherTimer(){ Interval = TimeSpan.FromMinutes(1) };
             _timer.Tick += UpdateStockPrices;
             _timer.Start();
 
