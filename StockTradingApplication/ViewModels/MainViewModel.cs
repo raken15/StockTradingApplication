@@ -8,15 +8,19 @@ using System.Windows.Input;
 
 namespace StockTradingApplication.ViewModels
 {
-    public class MainViewModel : INotifyPropertyChanged
+    public class MainViewModel : INotifyPropertyChanged, IDisposable
     {
+        #region Constants
+        private const int TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS = 1;  // 1 second
+        private const int TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS = 60;  // 1 minute
+        #endregion
         #region Fields
         private IRepository<StockModel, string> _stockRepository;
         private StockViewModel _selectedStock;
         private FinancialPortfolioViewModel _financialPortfolio;
         private StockViewModel _selectedPortfolioStock;
-        private DispatcherTimer _timer;
-        private DateTime _elapsedTime;
+        private DispatcherTimer _timerUpdatePrices;
+        private TimeSpan _elapsedTime;
         private DispatcherTimer _elapsedTimeTimer;
         private string _message;
         private bool _isMessageVisible;
@@ -68,11 +72,16 @@ namespace StockTradingApplication.ViewModels
                 }
             }
         }
-        public string ElapsedTime
+        public TimeSpan ElapsedTime
         {
-            get
+            get { return _elapsedTime; }
+            set
             {
-                return _elapsedTime.ToString("HH:mm:ss");
+                if (_elapsedTime != value)
+                {
+                    _elapsedTime = value;
+                    RaisePropertyChanged(nameof(ElapsedTime));
+                }
             }
         }
         public string Message
@@ -156,43 +165,43 @@ namespace StockTradingApplication.ViewModels
         }
         private void InitializeCommands()
         {
-            BuyStockCommand = new RelayCommand(async (param) => await BuyStockAsync(), (param) => CanBuyStock());
-            SellStockCommand = new RelayCommand(async (param) => await SellStockAsync(), (param) => CanSellStock());
+            BuyStockCommand = new RelayCommand((param) => BuyStock(), (param) => CanBuyStock());
+            SellStockCommand = new RelayCommand((param) => SellStock(), (param) => CanSellStock());
             RestartCommand = new RelayCommand(Restart);
             CloseMessageCommand = new RelayCommand(CloseMessage);
         }
         private void InitializeTimers()
         {
-            _elapsedTime = default(DateTime);
-            if(_timer != null && _elapsedTimeTimer != null)
+            ElapsedTime = default(TimeSpan);
+            if(_timerUpdatePrices != null && _elapsedTimeTimer != null)
             {
-                _timer.Start();
+                _timerUpdatePrices.Start();
                 _elapsedTimeTimer.Start();
             }
             else
             {
-                _timer = new DispatcherTimer { Interval = TimeSpan.FromMinutes(1) };
-                _timer.Tick += UpdateStockPrices;
-                _timer.Start();
-                _elapsedTimeTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+                _timerUpdatePrices = new DispatcherTimer
+                 { Interval = TimeSpan.FromSeconds(TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS) };
+                _timerUpdatePrices.Tick += UpdateStockPrices;
+                _timerUpdatePrices.Start();
+                _elapsedTimeTimer = new DispatcherTimer
+                 { Interval = TimeSpan.FromSeconds(TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS) };
                 _elapsedTimeTimer.Tick += (sender, args) =>
                 {
-                    _elapsedTime = _elapsedTime.AddSeconds(1);
-                    RaisePropertyChanged(nameof(ElapsedTime));
+                    ElapsedTime = ElapsedTime.Add(TimeSpan.FromSeconds(TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS));
                 };
                 _elapsedTimeTimer.Start();
             }
         }
         #endregion
         #region Methods
-        private async Task BuyStockAsync()
+        private void BuyStock()
         {
             if (SelectedStock != null)
             {
                 // Simulated stock buying logic
                 SelectedStock.Quantity--;
 
-                await Task.Yield(); // Yield to the UI thread
                 if(FinancialPortfolio.StocksPortfolio.Any(x => x.Symbol == SelectedStock.Symbol))
                 {
                     FinancialPortfolio.StocksPortfolio.First(x => x.Symbol == SelectedStock.Symbol).Quantity++;
@@ -209,12 +218,11 @@ namespace StockTradingApplication.ViewModels
                 BuyStockCommand.RaiseCanExecuteChanged();
             }
         }
-        private async Task SellStockAsync()
+        private void SellStock()
         {
             if (SelectedPortfolioStock != null)
             {
-                await Task.Yield(); // Yield to the UI thread
-                // Simulated stock buying logic
+                // Simulated stock selling logic
                 SelectedPortfolioStock.Quantity--;
                 FinancialPortfolio.Money += SelectedPortfolioStock.Price;
                 if(Stocks.Any(x => x.Symbol == SelectedPortfolioStock.Symbol))
@@ -240,7 +248,7 @@ namespace StockTradingApplication.ViewModels
         }
         private void StopTimers()
         {
-            _timer.Stop();
+            _timerUpdatePrices.Stop();
             _elapsedTimeTimer.Stop();
         }
         #endregion
@@ -304,6 +312,49 @@ namespace StockTradingApplication.ViewModels
             IsMessageVisible = false;
         }
         #endregion
+        #endregion
+        #region Public Methods
+        // Method to simulate timer tick
+        public void SimulateTick()
+        {
+            // Trigger the tick event manually
+            UpdateStockPrices(this, EventArgs.Empty);
+        }
+        #endregion
+    
+        #region Dispose and Cleanup
+
+        public void Dispose()
+        {
+            if (_timerUpdatePrices != null)
+            {
+                _timerUpdatePrices.Stop();
+                _timerUpdatePrices.Tick -= UpdateStockPrices;
+                _timerUpdatePrices = null;
+            }
+            if (_elapsedTimeTimer != null)
+            {
+                _elapsedTimeTimer.Stop();
+                _elapsedTimeTimer.Tick -= (s, e) => ElapsedTime = ElapsedTime.Add(TimeSpan.FromSeconds(TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS));
+                _elapsedTimeTimer = null;
+            }
+
+            if(Stocks != null)
+            {
+                Stocks.Clear();
+            }
+
+            if (FinancialPortfolio != null)
+            {
+                FinancialPortfolio.StocksPortfolio.Clear();
+                FinancialPortfolio.PropertyChanged -= FinancialPortfolio_PropertyChanged;
+
+            }
+            if (_stockRepository != null)
+            {
+                _stockRepository.RemoveAll();
+            }
+        }
         #endregion
     }
 }

@@ -53,6 +53,10 @@ public class StockModelRepository : IRepository<StockModel, string>
             System.Windows.MessageBox.Show($"Stock {stockSymbol} does not exist in the repository.", "Error");
         }
     }
+    public void RemoveAll()
+    {
+        _stocks.Clear();
+    }
     public IEnumerable<StockModel> GetAllBelowPrice(float stockPrice)
     {
         if (_stocks.Count == 0)

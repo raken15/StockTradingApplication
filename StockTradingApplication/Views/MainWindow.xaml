@@ -56,7 +56,7 @@
                 HorizontalAlignment="Center" VerticalAlignment="Center">
                 Restart
             </Button>
-            <Label Content="{Binding ElapsedTime}" FontSize="20"
+            <Label Content="{Binding ElapsedTime, StringFormat='{}{0:HH:mm:ss}'}" FontSize="20"
                 HorizontalAlignment="Right" VerticalAlignment="Top"/>
         </Grid>
 
@@ -69,9 +69,29 @@
                  AutoGenerateColumns="False" SelectionMode="Single" Margin="10" HorizontalAlignment="Left"
                  VerticalAlignment="Center">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Symbol" Binding="{Binding Symbol}"/>
-                    <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}"/>
-                    <DataGridTextColumn Header="Price" Binding="{Binding Price, StringFormat={}{0:C}}" />
+                    <DataGridTemplateColumn Header="Symbol">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Symbol}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn Header="Quantity">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Quantity}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTemplateColumn Header="Price">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Price, StringFormat={}{0:C}}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
             <Label FontSize="18"

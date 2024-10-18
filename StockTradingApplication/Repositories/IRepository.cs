@@ -6,5 +6,6 @@ namespace StockTradingApplication.Repositories
         IEnumerable<T> GetAll();
         void Add(T item);
         void Remove(K key);
+        void RemoveAll();
     }
 }
