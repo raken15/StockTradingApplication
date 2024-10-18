@@ -161,8 +161,8 @@ namespace StockTradingApplication.ViewModels
         }
         private void InitializeCommands()
         {
-            BuyStockCommand = new RelayCommand(async (param) => await BuyStockAsync(), (param) => CanBuyStock());
-            SellStockCommand = new RelayCommand(async (param) => await SellStockAsync(), (param) => CanSellStock());
+            BuyStockCommand = new RelayCommand((param) => BuyStock(), (param) => CanBuyStock());
+            SellStockCommand = new RelayCommand((param) => SellStock(), (param) => CanSellStock());
             RestartCommand = new RelayCommand(Restart);
             CloseMessageCommand = new RelayCommand(CloseMessage);
         }
@@ -189,14 +189,13 @@ namespace StockTradingApplication.ViewModels
         }
         #endregion
         #region Methods
-        private async Task BuyStockAsync()
+        private void BuyStock()
         {
             if (SelectedStock != null)
             {
                 // Simulated stock buying logic
                 SelectedStock.Quantity--;
 
-                await Task.Yield(); // Yield to the UI thread
                 if(FinancialPortfolio.StocksPortfolio.Any(x => x.Symbol == SelectedStock.Symbol))
                 {
                     FinancialPortfolio.StocksPortfolio.First(x => x.Symbol == SelectedStock.Symbol).Quantity++;
@@ -213,12 +212,11 @@ namespace StockTradingApplication.ViewModels
                 BuyStockCommand.RaiseCanExecuteChanged();
             }
         }
-        private async Task SellStockAsync()
+        private void SellStock()
         {
             if (SelectedPortfolioStock != null)
             {
-                await Task.Yield(); // Yield to the UI thread
-                // Simulated stock buying logic
+                // Simulated stock selling logic
                 SelectedPortfolioStock.Quantity--;
                 FinancialPortfolio.Money += SelectedPortfolioStock.Price;
                 if(Stocks.Any(x => x.Symbol == SelectedPortfolioStock.Symbol))
