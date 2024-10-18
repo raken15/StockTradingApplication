@@ -107,16 +107,12 @@ namespace Tests
 
         public void Dispose()
         {
-            // Cleanup logic here, if necessary
-            // This will be called after each test method
-            if (_viewModel != null)
+            if(_viewModel != null)
             {
-                _viewModel.FinancialPortfolio.StocksPortfolio.Clear();
-                _viewModel.Stocks.Clear();
-                _viewModel.SelectedStock = null;
-                _viewModel.SelectedPortfolioStock = null;
-                _viewModel = null; // or other cleanup actions
+                _viewModel.Dispose();
+                _viewModel = null;
             }
+            
         }
     }
 }

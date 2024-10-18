@@ -8,7 +8,7 @@ using System.Windows.Input;
 
 namespace StockTradingApplication.ViewModels
 {
-    public class MainViewModel : INotifyPropertyChanged
+    public class MainViewModel : INotifyPropertyChanged, IDisposable
     {
         #region Fields
         private IRepository<StockModel, string> _stockRepository;
@@ -103,6 +103,14 @@ namespace StockTradingApplication.ViewModels
                     _isMessageVisible = value;
                     RaisePropertyChanged(nameof(IsMessageVisible));
                 }
+            }
+        }
+        public DispatcherTimer UpdatePriceTimer
+        {
+            get => _timer;
+            set
+            {
+                _timer = value;
             }
         }
         #endregion
@@ -306,6 +314,41 @@ namespace StockTradingApplication.ViewModels
             IsMessageVisible = false;
         }
         #endregion
+        #endregion
+    
+        #region Dispose and Cleanup
+
+        public void Dispose()
+        {
+            if (_timer != null)
+            {
+                _timer.Stop();
+                _timer.Tick -= UpdateStockPrices;
+                _timer = null;
+            }
+            if (_elapsedTimeTimer != null)
+            {
+                _elapsedTimeTimer.Stop();
+                _elapsedTimeTimer.Tick -= (s, e) => ElapsedTime = ElapsedTime.Add(TimeSpan.FromSeconds(1));
+                _elapsedTimeTimer = null;
+            }
+
+            if(Stocks != null)
+            {
+                Stocks.Clear();
+            }
+
+            if (FinancialPortfolio != null)
+            {
+                FinancialPortfolio.StocksPortfolio.Clear();
+                FinancialPortfolio.PropertyChanged -= FinancialPortfolio_PropertyChanged;
+
+            }
+            if (_stockRepository != null)
+            {
+                _stockRepository.RemoveAll();
+            }
+        }
         #endregion
     }
 }
