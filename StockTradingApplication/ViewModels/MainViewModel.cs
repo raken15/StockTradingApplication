@@ -16,7 +16,7 @@ namespace StockTradingApplication.ViewModels
         private FinancialPortfolioViewModel _financialPortfolio;
         private StockViewModel _selectedPortfolioStock;
         private DispatcherTimer _timer;
-        private DateTime _elapsedTime;
+        private TimeSpan _elapsedTime;
         private DispatcherTimer _elapsedTimeTimer;
         private string _message;
         private bool _isMessageVisible;
@@ -68,11 +68,16 @@ namespace StockTradingApplication.ViewModels
                 }
             }
         }
-        public string ElapsedTime
+        public TimeSpan ElapsedTime
         {
-            get
+            get { return _elapsedTime; }
+            set
             {
-                return _elapsedTime.ToString("HH:mm:ss");
+                if (_elapsedTime != value)
+                {
+                    _elapsedTime = value;
+                    RaisePropertyChanged(nameof(ElapsedTime));
+                }
             }
         }
         public string Message
@@ -163,7 +168,7 @@ namespace StockTradingApplication.ViewModels
         }
         private void InitializeTimers()
         {
-            _elapsedTime = default(DateTime);
+            ElapsedTime = default(TimeSpan);
             if(_timer != null && _elapsedTimeTimer != null)
             {
                 _timer.Start();
@@ -177,8 +182,7 @@ namespace StockTradingApplication.ViewModels
                 _elapsedTimeTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
                 _elapsedTimeTimer.Tick += (sender, args) =>
                 {
-                    _elapsedTime = _elapsedTime.AddSeconds(1);
-                    RaisePropertyChanged(nameof(ElapsedTime));
+                    ElapsedTime = ElapsedTime.Add(TimeSpan.FromSeconds(1));
                 };
                 _elapsedTimeTimer.Start();
             }
