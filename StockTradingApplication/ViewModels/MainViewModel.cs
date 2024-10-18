@@ -15,7 +15,7 @@ namespace StockTradingApplication.ViewModels
         private StockViewModel _selectedStock;
         private FinancialPortfolioViewModel _financialPortfolio;
         private StockViewModel _selectedPortfolioStock;
-        private DispatcherTimer _timer;
+        private DispatcherTimer _timerUpdatePrices;
         private TimeSpan _elapsedTime;
         private DispatcherTimer _elapsedTimeTimer;
         private string _message;
@@ -105,14 +105,6 @@ namespace StockTradingApplication.ViewModels
                 }
             }
         }
-        public DispatcherTimer UpdatePriceTimer
-        {
-            get => _timer;
-            set
-            {
-                _timer = value;
-            }
-        }
         #endregion
         #region Commands
         public RelayCommand BuyStockCommand { get; set; }
@@ -121,12 +113,12 @@ namespace StockTradingApplication.ViewModels
         public RelayCommand CloseMessageCommand { get; set; }
         #endregion
         #region Constructor and initialization
-        public MainViewModel()
+        public MainViewModel(DispatcherTimer timerUpdatePricesParam = null)
         {
             InitializeStockRepository();
             InitializeFinancialPortfolio();
             InitializeCommands();
-            InitializeTimers();
+            InitializeTimers(timerUpdatePricesParam);
         }
         private void InitializeStockRepository()
         {
@@ -174,19 +166,19 @@ namespace StockTradingApplication.ViewModels
             RestartCommand = new RelayCommand(Restart);
             CloseMessageCommand = new RelayCommand(CloseMessage);
         }
-        private void InitializeTimers()
+        private void InitializeTimers(DispatcherTimer timerUpdatePricesParam = null)
         {
             ElapsedTime = default(TimeSpan);
-            if(_timer != null && _elapsedTimeTimer != null)
+            if(_timerUpdatePrices != null && _elapsedTimeTimer != null)
             {
-                _timer.Start();
+                _timerUpdatePrices.Start();
                 _elapsedTimeTimer.Start();
             }
             else
             {
-                _timer = new DispatcherTimer { Interval = TimeSpan.FromMinutes(1) };
-                _timer.Tick += UpdateStockPrices;
-                _timer.Start();
+                _timerUpdatePrices = timerUpdatePricesParam ?? new DispatcherTimer { Interval = TimeSpan.FromMinutes(1) };
+                _timerUpdatePrices.Tick += UpdateStockPrices;
+                _timerUpdatePrices.Start();
                 _elapsedTimeTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
                 _elapsedTimeTimer.Tick += (sender, args) =>
                 {
@@ -250,7 +242,7 @@ namespace StockTradingApplication.ViewModels
         }
         private void StopTimers()
         {
-            _timer.Stop();
+            _timerUpdatePrices.Stop();
             _elapsedTimeTimer.Stop();
         }
         #endregion
@@ -320,11 +312,11 @@ namespace StockTradingApplication.ViewModels
 
         public void Dispose()
         {
-            if (_timer != null)
+            if (_timerUpdatePrices != null)
             {
-                _timer.Stop();
-                _timer.Tick -= UpdateStockPrices;
-                _timer = null;
+                _timerUpdatePrices.Stop();
+                _timerUpdatePrices.Tick -= UpdateStockPrices;
+                _timerUpdatePrices = null;
             }
             if (_elapsedTimeTimer != null)
             {
