@@ -117,12 +117,12 @@ namespace StockTradingApplication.ViewModels
         public RelayCommand CloseMessageCommand { get; set; }
         #endregion
         #region Constructor and initialization
-        public MainViewModel(DispatcherTimer timerUpdatePricesParam = null)
+        public MainViewModel()
         {
             InitializeStockRepository();
             InitializeFinancialPortfolio();
             InitializeCommands();
-            InitializeTimers(timerUpdatePricesParam);
+            InitializeTimers();
         }
         private void InitializeStockRepository()
         {
@@ -170,7 +170,7 @@ namespace StockTradingApplication.ViewModels
             RestartCommand = new RelayCommand(Restart);
             CloseMessageCommand = new RelayCommand(CloseMessage);
         }
-        private void InitializeTimers(DispatcherTimer timerUpdatePricesParam = null)
+        private void InitializeTimers()
         {
             ElapsedTime = default(TimeSpan);
             if(_timerUpdatePrices != null && _elapsedTimeTimer != null)
@@ -180,7 +180,7 @@ namespace StockTradingApplication.ViewModels
             }
             else
             {
-                _timerUpdatePrices = timerUpdatePricesParam ?? new DispatcherTimer
+                _timerUpdatePrices = new DispatcherTimer
                  { Interval = TimeSpan.FromSeconds(TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS) };
                 _timerUpdatePrices.Tick += UpdateStockPrices;
                 _timerUpdatePrices.Start();
@@ -312,6 +312,14 @@ namespace StockTradingApplication.ViewModels
             IsMessageVisible = false;
         }
         #endregion
+        #endregion
+        #region Public Methods
+        // Method to simulate timer tick
+        public void SimulateTick()
+        {
+            // Trigger the tick event manually
+            UpdateStockPrices(this, EventArgs.Empty);
+        }
         #endregion
     
         #region Dispose and Cleanup

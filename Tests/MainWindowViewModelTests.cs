@@ -2,6 +2,7 @@ using Xunit;
 using StockTradingApplication.ViewModels;
 using StockTradingApplication.Models;
 using System.Collections.ObjectModel;
+using System.Windows.Threading;
 
 namespace Tests
 {
@@ -104,6 +105,38 @@ namespace Tests
             Assert.True(_viewModel.IsMessageVisible);
             Assert.Equal("Game Over! You Lose! you have less than $1, you can try again if you wish, clicking ok will restart the game", _viewModel.Message);
         }
+        [Fact]
+        public void StockPrices_ShouldUpdateAfterOneAndTwoMinutes()
+        {
+            // Arrange
+            _viewModel.FinancialPortfolio.StocksPortfolio.Add(_viewModel.Stocks[0]);
+
+            var initialStockPrices = _viewModel.Stocks.Select(s => s.Price).ToList();
+            var initialPortfolioPrices = _viewModel.FinancialPortfolio.StocksPortfolio.Select(s => s.Price).ToList();
+
+            // Act - Simulate 1 minute delay
+            _viewModel.SimulateTick();
+            var pricesAfterOneMinute = _viewModel.Stocks.Select(s => s.Price).ToList();
+            var portfolioPricesAfterOneMinute = _viewModel.FinancialPortfolio.StocksPortfolio.Select(s => s.Price).ToList();
+
+            // Act - Simulate another 1 minute delay
+            _viewModel.SimulateTick();
+            var pricesAfterTwoMinutes = _viewModel.Stocks.Select(s => s.Price).ToList();
+            var portfolioPricesAfterTwoMinutes = _viewModel.FinancialPortfolio.StocksPortfolio.Select(s => s.Price).ToList();
+
+            // Assert
+            Assert.NotNull(_viewModel.Stocks);
+            Assert.NotEmpty(_viewModel.Stocks);
+            Assert.NotEqual(initialStockPrices, pricesAfterOneMinute);
+            Assert.NotEqual(initialStockPrices, pricesAfterTwoMinutes);
+            Assert.NotEqual(pricesAfterOneMinute, pricesAfterTwoMinutes);
+
+            Assert.NotNull(_viewModel.FinancialPortfolio);
+            Assert.NotEmpty(_viewModel.FinancialPortfolio.StocksPortfolio);
+            Assert.NotEqual(initialPortfolioPrices, portfolioPricesAfterOneMinute);
+            Assert.NotEqual(initialPortfolioPrices, portfolioPricesAfterTwoMinutes);
+            Assert.NotEqual(portfolioPricesAfterOneMinute, portfolioPricesAfterTwoMinutes);
+        }
 
         public void Dispose()
         {
@@ -112,7 +145,6 @@ namespace Tests
                 _viewModel.Dispose();
                 _viewModel = null;
             }
-            
         }
     }
 }
