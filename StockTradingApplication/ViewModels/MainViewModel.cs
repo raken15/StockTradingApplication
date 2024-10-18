@@ -10,6 +10,10 @@ namespace StockTradingApplication.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged, IDisposable
     {
+        #region Constants
+        private const int TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS = 1;  // 1 second
+        private const int TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS = 60;  // 1 minute
+        #endregion
         #region Fields
         private IRepository<StockModel, string> _stockRepository;
         private StockViewModel _selectedStock;
@@ -176,13 +180,15 @@ namespace StockTradingApplication.ViewModels
             }
             else
             {
-                _timerUpdatePrices = timerUpdatePricesParam ?? new DispatcherTimer { Interval = TimeSpan.FromMinutes(1) };
+                _timerUpdatePrices = timerUpdatePricesParam ?? new DispatcherTimer
+                 { Interval = TimeSpan.FromSeconds(TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS) };
                 _timerUpdatePrices.Tick += UpdateStockPrices;
                 _timerUpdatePrices.Start();
-                _elapsedTimeTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+                _elapsedTimeTimer = new DispatcherTimer
+                 { Interval = TimeSpan.FromSeconds(TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS) };
                 _elapsedTimeTimer.Tick += (sender, args) =>
                 {
-                    ElapsedTime = ElapsedTime.Add(TimeSpan.FromSeconds(1));
+                    ElapsedTime = ElapsedTime.Add(TimeSpan.FromSeconds(TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS));
                 };
                 _elapsedTimeTimer.Start();
             }
@@ -321,7 +327,7 @@ namespace StockTradingApplication.ViewModels
             if (_elapsedTimeTimer != null)
             {
                 _elapsedTimeTimer.Stop();
-                _elapsedTimeTimer.Tick -= (s, e) => ElapsedTime = ElapsedTime.Add(TimeSpan.FromSeconds(1));
+                _elapsedTimeTimer.Tick -= (s, e) => ElapsedTime = ElapsedTime.Add(TimeSpan.FromSeconds(TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS));
                 _elapsedTimeTimer = null;
             }
 
