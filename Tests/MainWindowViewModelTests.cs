@@ -1,8 +1,6 @@
 using Xunit;
 using StockTradingApplication.ViewModels;
 using StockTradingApplication.Models;
-using System.Collections.ObjectModel;
-using System.Windows.Threading;
 
 namespace Tests
 {
