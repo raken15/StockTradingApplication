@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug StockTradingApplication",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/StockTradingApplication/bin/Debug/net8.0-windows/StockTradingApplication.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/StockTradingApplication",
+            "stopAtEntry": false,
+            "console": "internalConsole",
+            "internalConsoleOptions": "openOnSessionStart"
+        }
+    ]
+}
