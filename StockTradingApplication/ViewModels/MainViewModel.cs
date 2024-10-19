@@ -27,7 +27,7 @@ namespace StockTradingApplication.ViewModels
         #endregion
         #region Properties
         public ObservableCollection<StockViewModel> Stocks { get; set; }
-        
+
         public StockViewModel SelectedStock
         {
             get => _selectedStock;
@@ -131,7 +131,7 @@ namespace StockTradingApplication.ViewModels
         }
         private void InitializeStocks()
         {
-            if(Stocks == null)
+            if (Stocks == null)
             {
                 Stocks = new ObservableCollection<StockViewModel>();
             }
@@ -147,7 +147,7 @@ namespace StockTradingApplication.ViewModels
         }
         private void InitializeFinancialPortfolio()
         {
-            if(FinancialPortfolio == null)
+            if (FinancialPortfolio == null)
             {
                 var financialPortfolioModel = new FinancialPortfolioModel
                 {
@@ -173,7 +173,7 @@ namespace StockTradingApplication.ViewModels
         private void InitializeTimers()
         {
             ElapsedTime = default(TimeSpan);
-            if(_timerUpdatePrices != null && _elapsedTimeTimer != null)
+            if (_timerUpdatePrices != null && _elapsedTimeTimer != null)
             {
                 _timerUpdatePrices.Start();
                 _elapsedTimeTimer.Start();
@@ -181,11 +181,11 @@ namespace StockTradingApplication.ViewModels
             else
             {
                 _timerUpdatePrices = new DispatcherTimer
-                 { Interval = TimeSpan.FromSeconds(TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS) };
+                { Interval = TimeSpan.FromSeconds(TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS) };
                 _timerUpdatePrices.Tick += UpdateStockPrices;
                 _timerUpdatePrices.Start();
                 _elapsedTimeTimer = new DispatcherTimer
-                 { Interval = TimeSpan.FromSeconds(TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS) };
+                { Interval = TimeSpan.FromSeconds(TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS) };
                 _elapsedTimeTimer.Tick += (sender, args) =>
                 {
                     ElapsedTime = ElapsedTime.Add(TimeSpan.FromSeconds(TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS));
@@ -202,15 +202,19 @@ namespace StockTradingApplication.ViewModels
                 // Simulated stock buying logic
                 SelectedStock.Quantity--;
 
-                if(FinancialPortfolio.StocksPortfolio.Any(x => x.Symbol == SelectedStock.Symbol))
+                if (FinancialPortfolio.StocksPortfolio.Any(x => x.Symbol == SelectedStock.Symbol))
                 {
                     FinancialPortfolio.StocksPortfolio.First(x => x.Symbol == SelectedStock.Symbol).Quantity++;
                 }
                 else
                 {
                     FinancialPortfolio.StocksPortfolio.Add(new StockViewModel(
-                    new StockModel() { Symbol = SelectedStock.Symbol,
-                    Quantity = 1, Price = SelectedStock.Price }));
+                    new StockModel()
+                    {
+                        Symbol = SelectedStock.Symbol,
+                        Quantity = 1,
+                        Price = SelectedStock.Price
+                    }));
                 }
                 FinancialPortfolio.Money -= SelectedStock.Price;
 
@@ -225,7 +229,7 @@ namespace StockTradingApplication.ViewModels
                 // Simulated stock selling logic
                 SelectedPortfolioStock.Quantity--;
                 FinancialPortfolio.Money += SelectedPortfolioStock.Price;
-                if(Stocks.Any(x => x.Symbol == SelectedPortfolioStock.Symbol))
+                if (Stocks.Any(x => x.Symbol == SelectedPortfolioStock.Symbol))
                 {
                     Stocks.First(x => x.Symbol == SelectedPortfolioStock.Symbol).Quantity++;
                 }
@@ -259,7 +263,7 @@ namespace StockTradingApplication.ViewModels
             var random = new Random();
             foreach (var stock in Stocks)
             {
-                var newPrice = random.Next(1,4001) + random.Next(100) / 100.0f;
+                var newPrice = random.Next(1, 4001) + random.Next(100) / 100.0f;
                 stock.Price = newPrice;
 
                 var portfolioStock = FinancialPortfolio.StocksPortfolio.FirstOrDefault(ps => ps.Symbol == stock.Symbol);
@@ -321,7 +325,7 @@ namespace StockTradingApplication.ViewModels
             UpdateStockPrices(this, EventArgs.Empty);
         }
         #endregion
-    
+
         #region Dispose and Cleanup
 
         public void Dispose()
@@ -339,7 +343,7 @@ namespace StockTradingApplication.ViewModels
                 _elapsedTimeTimer = null;
             }
 
-            if(Stocks != null)
+            if (Stocks != null)
             {
                 Stocks.Clear();
             }

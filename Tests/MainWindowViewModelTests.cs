@@ -4,7 +4,7 @@ using StockTradingApplication.Models;
 
 namespace Tests
 {
-    public class MainViewModelTests: IDisposable
+    public class MainViewModelTests : IDisposable
     {
         private MainViewModel _viewModel;
 
@@ -138,7 +138,7 @@ namespace Tests
 
         public void Dispose()
         {
-            if(_viewModel != null)
+            if (_viewModel != null)
             {
                 _viewModel.Dispose();
                 _viewModel = null;

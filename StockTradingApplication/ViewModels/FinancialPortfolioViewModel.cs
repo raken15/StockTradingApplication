@@ -7,7 +7,7 @@ namespace StockTradingApplication.ViewModels;
 public class FinancialPortfolioViewModel : INotifyPropertyChanged
 {
     private FinancialPortfolioModel _model;
-    private float _money; 
+    private float _money;
     private ObservableCollection<StockViewModel> _stocksPortfolio;
     public ObservableCollection<StockViewModel> StocksPortfolio
     {
