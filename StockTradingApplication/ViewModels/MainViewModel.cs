@@ -29,8 +29,8 @@ namespace StockTradingApplication.ViewModels
         private DispatcherTimer _timerUpdatePrices;
         private TimeSpan _elapsedTime;
         private DispatcherTimer _elapsedTimeTimer;
-        private string _message;
-        private bool _isMessageVisible;
+        private string _messageOverlayText;
+        private bool _isMessageOverlayVisible;
         private TimeSpan _remainingTimeBeforeNextPriceUpdate;
         #endregion
         #region Properties
@@ -92,28 +92,28 @@ namespace StockTradingApplication.ViewModels
                 }
             }
         }
-        public string Message
+        public string MessageOverlayText
         {
-            get { return _message; }
+            get { return _messageOverlayText; }
             set
             {
-                if (_message != value)
+                if (_messageOverlayText != value)
                 {
-                    _message = value;
-                    RaisePropertyChanged(nameof(Message));
+                    _messageOverlayText = value;
+                    RaisePropertyChanged(nameof(MessageOverlayText));
                 }
             }
         }
 
-        public bool IsMessageVisible
+        public bool IsMessageOverlayVisible
         {
-            get { return _isMessageVisible; }
+            get { return _isMessageOverlayVisible; }
             set
             {
-                if (_isMessageVisible != value)
+                if (_isMessageOverlayVisible != value)
                 {
-                    _isMessageVisible = value;
-                    RaisePropertyChanged(nameof(IsMessageVisible));
+                    _isMessageOverlayVisible = value;
+                    RaisePropertyChanged(nameof(IsMessageOverlayVisible));
                 }
             }
         }
@@ -141,7 +141,7 @@ namespace StockTradingApplication.ViewModels
         public RelayCommand BuyStockCommand { get; set; }
         public RelayCommand SellStockCommand { get; set; }
         public RelayCommand RestartCommand { get; set; }
-        public RelayCommand CloseMessageCommand { get; set; }
+        public RelayCommand CloseMessageOverlayCommand { get; set; }
         #endregion
         #region Constructor and initialization
         public MainViewModel()
@@ -209,9 +209,9 @@ namespace StockTradingApplication.ViewModels
             {
                 RestartCommand = new RelayCommand(Restart);
             }
-            if (CloseMessageCommand == null)
+            if (CloseMessageOverlayCommand == null)
             {
-                CloseMessageCommand = new RelayCommand(CloseMessage);
+                CloseMessageOverlayCommand = new RelayCommand(CloseMessageOverlay);
             }
         }
         private void InitializeTimers()
@@ -291,10 +291,10 @@ namespace StockTradingApplication.ViewModels
         {
             return SelectedPortfolioStock != null && SelectedPortfolioStock.Quantity > 0; // Can only buy if a stock is selected and has quantity
         }
-        private void ShowMessage(string message)
+        private void ShowMessageOverlay(string message)
         {
-            Message = message;
-            IsMessageVisible = true;
+            MessageOverlayText = message;
+            IsMessageOverlayVisible = true;
         }
         private void StopTimers()
         {
@@ -337,12 +337,12 @@ namespace StockTradingApplication.ViewModels
                 if (FinancialPortfolio.Money >= WINNING_MONEY)
                 {
                     StopTimers();
-                    ShowMessage("Congratulations! You win! you reached $10000, clicking ok will restart the game");
+                    ShowMessageOverlay("Congratulations! You win! you reached $10000, clicking ok will restart the game");
                 }
                 else if (FinancialPortfolio.Money < LOSING_MONEY)
                 {
                     StopTimers();
-                    ShowMessage("Game Over! You Lose! you have less than $1, you can try again if you wish, clicking ok will restart the game");
+                    ShowMessageOverlay("Game Over! You Lose! you have less than $1, you can try again if you wish, clicking ok will restart the game");
                 }
             }
         }
@@ -354,10 +354,10 @@ namespace StockTradingApplication.ViewModels
         }
         #endregion
         #region CloseMessage event handler
-        private void CloseMessage(object obj)
+        private void CloseMessageOverlay(object obj)
         {
             Restart(null);
-            IsMessageVisible = false;
+            IsMessageOverlayVisible = false;
         }
         #endregion
         #endregion
