@@ -84,6 +84,14 @@
                     <Run Text="{Binding ElapsedTime, StringFormat='{}{0:hh\\:mm\\:ss}'}"/>
                 </TextBlock>
             </Label>
+            <Label FontSize="20"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Bottom">
+                <TextBlock>
+                    <Run Text="Stocks Prices updates in: "/>
+                    <Run Text="{Binding RemainingTimeBeforeNextPriceUpdate, StringFormat='{}{0:hh\\:mm\\:ss}'}"/>
+                </TextBlock>
+            </Label>
         </Grid>
 
         <!-- Financial portfolio with data grid and label -->

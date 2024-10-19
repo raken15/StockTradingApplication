@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Threading;
 using System.Windows.Input;
+using System.Runtime.Serialization;
 
 namespace StockTradingApplication.ViewModels
 {
@@ -24,6 +25,7 @@ namespace StockTradingApplication.ViewModels
         private DispatcherTimer _elapsedTimeTimer;
         private string _message;
         private bool _isMessageVisible;
+        private TimeSpan _remainingTimeBeforeNextPriceUpdate;
         #endregion
         #region Properties
         public ObservableCollection<StockViewModel> Stocks { get; set; }
@@ -109,6 +111,25 @@ namespace StockTradingApplication.ViewModels
                 }
             }
         }
+        public TimeSpan RemainingTimeBeforeNextPriceUpdate
+        {
+            get => _remainingTimeBeforeNextPriceUpdate;
+            set
+            {
+                if (_remainingTimeBeforeNextPriceUpdate != value)
+                {
+                    if (_remainingTimeBeforeNextPriceUpdate == TimeSpan.Zero)
+                    {
+                        _remainingTimeBeforeNextPriceUpdate = TimeSpan.FromSeconds(TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS);
+                    }
+                    else
+                    {
+                        _remainingTimeBeforeNextPriceUpdate = value;
+                    }
+                    RaisePropertyChanged(nameof(RemainingTimeBeforeNextPriceUpdate));
+                }
+            }
+        }
         #endregion
         #region Commands
         public RelayCommand BuyStockCommand { get; set; }
@@ -173,6 +194,7 @@ namespace StockTradingApplication.ViewModels
         private void InitializeTimers()
         {
             ElapsedTime = default(TimeSpan);
+            RemainingTimeBeforeNextPriceUpdate = TimeSpan.FromSeconds(TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS);
             if (_timerUpdatePrices != null && _elapsedTimeTimer != null)
             {
                 _timerUpdatePrices.Start();
@@ -189,6 +211,7 @@ namespace StockTradingApplication.ViewModels
                 _elapsedTimeTimer.Tick += (sender, args) =>
                 {
                     ElapsedTime = ElapsedTime.Add(TimeSpan.FromSeconds(TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS));
+                    RemainingTimeBeforeNextPriceUpdate = TimeSpan.FromSeconds(TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS - ElapsedTime.Seconds);
                 };
                 _elapsedTimeTimer.Start();
             }
