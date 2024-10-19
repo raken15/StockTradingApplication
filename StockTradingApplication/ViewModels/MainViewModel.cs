@@ -5,7 +5,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Threading;
 using System.Windows.Input;
-using System.Runtime.Serialization;
 
 namespace StockTradingApplication.ViewModels
 {
@@ -44,7 +43,7 @@ namespace StockTradingApplication.ViewModels
                 if (_selectedStock != value)
                 {
                     _selectedStock = value;
-                    BuyStockCommand.RaiseCanExecuteChanged();
+                    ((RelayCommand<object>)BuyStockCommand).RaiseCanExecuteChanged();
                     if (value != null)
                     {
                         SelectedPortfolioStock = null; // Clear SelectedPortfolioStock after SelectedStock is set
@@ -72,7 +71,7 @@ namespace StockTradingApplication.ViewModels
                 if (_selectedPortfolioStock != value)
                 {
                     _selectedPortfolioStock = value;
-                    SellStockCommand.RaiseCanExecuteChanged();
+                    ((RelayCommand<object>)SellStockCommand).RaiseCanExecuteChanged();
                     if (value != null)
                     {
                         SelectedStock = null; // Clear SelectedStock after SelectedPortfolioStock is set
@@ -138,10 +137,10 @@ namespace StockTradingApplication.ViewModels
         }
         #endregion
         #region Commands
-        public RelayCommand BuyStockCommand { get; set; }
-        public RelayCommand SellStockCommand { get; set; }
-        public RelayCommand RestartCommand { get; set; }
-        public RelayCommand CloseMessageOverlayCommand { get; set; }
+        public ICommand BuyStockCommand { get; private set; }
+        public ICommand SellStockCommand { get; private set; }
+        public ICommand RestartCommand { get; private set; }
+        public ICommand CloseMessageOverlayCommand { get; private set; }
         #endregion
         #region Constructor and initialization
         public MainViewModel()
@@ -199,19 +198,19 @@ namespace StockTradingApplication.ViewModels
         {
             if (BuyStockCommand == null)
             {
-                BuyStockCommand = new RelayCommand((param) => BuyStock(), (param) => CanBuyStock());
+                BuyStockCommand = new RelayCommand<object>(_ => BuyStock(), _ => CanBuyStock());
             }
             if (SellStockCommand == null)
             {
-                SellStockCommand = new RelayCommand((param) => SellStock(), (param) => CanSellStock());
+                SellStockCommand = new RelayCommand<object>(_ => SellStock(), _ => CanSellStock());
             }
             if (RestartCommand == null)
             {
-                RestartCommand = new RelayCommand(Restart);
+                RestartCommand = new RelayCommand<object>(_ => Restart());
             }
             if (CloseMessageOverlayCommand == null)
             {
-                CloseMessageOverlayCommand = new RelayCommand(CloseMessageOverlay);
+                CloseMessageOverlayCommand = new RelayCommand<object>(_ => CloseMessageOverlay());
             }
         }
         private void InitializeTimers()
@@ -265,7 +264,7 @@ namespace StockTradingApplication.ViewModels
                 FinancialPortfolio.Money -= SelectedStock.Price;
 
                 RaisePropertyChanged(nameof(Stocks));
-                BuyStockCommand.RaiseCanExecuteChanged();
+                ((RelayCommand<object>)BuyStockCommand).RaiseCanExecuteChanged();
             }
         }
         private void SellStock()
@@ -280,7 +279,7 @@ namespace StockTradingApplication.ViewModels
                     Stocks.First(x => x.Symbol == SelectedPortfolioStock.Symbol).Quantity++;
                 }
                 //RaisePropertyChanged(nameof(Stocks));
-                SellStockCommand.RaiseCanExecuteChanged();
+                ((RelayCommand<object>)SellStockCommand).RaiseCanExecuteChanged();
             }
         }
         private bool CanBuyStock()
@@ -348,15 +347,15 @@ namespace StockTradingApplication.ViewModels
         }
         #endregion
         #region Restart event handler
-        private void Restart(object obj)
+        private void Restart()
         {
             Initialization();
         }
         #endregion
         #region CloseMessage event handler
-        private void CloseMessageOverlay(object obj)
+        private void CloseMessageOverlay()
         {
-            Restart(null);
+            Restart();
             IsMessageOverlayVisible = false;
         }
         #endregion
