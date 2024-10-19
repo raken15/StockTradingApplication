@@ -28,7 +28,7 @@ namespace Tests
             Assert.NotNull(_viewModel.BuyStockCommand);
             Assert.NotNull(_viewModel.SellStockCommand);
             Assert.NotNull(_viewModel.RestartCommand);
-            Assert.NotNull(_viewModel.CloseMessageCommand);
+            Assert.NotNull(_viewModel.CloseMessageOverlayCommand);
 
             Assert.NotNull(_viewModel.ElapsedTime);
             Assert.Equal(default(TimeSpan), _viewModel.ElapsedTime);
@@ -86,8 +86,8 @@ namespace Tests
             _viewModel.FinancialPortfolio.Money = 10000; // Trigger the condition
 
             // Assert
-            Assert.True(_viewModel.IsMessageVisible);
-            Assert.Equal("Congratulations! You win! you reached $10000, clicking ok will restart the game", _viewModel.Message);
+            Assert.True(_viewModel.IsMessageOverlayVisible);
+            Assert.Equal("Congratulations! You win! you reached $10000, clicking ok will restart the game", _viewModel.MessageOverlayText);
         }
 
         [Fact]
@@ -100,8 +100,8 @@ namespace Tests
             _viewModel.FinancialPortfolio.Money = 0; // Trigger the condition
 
             // Assert
-            Assert.True(_viewModel.IsMessageVisible);
-            Assert.Equal("Game Over! You Lose! you have less than $1, you can try again if you wish, clicking ok will restart the game", _viewModel.Message);
+            Assert.True(_viewModel.IsMessageOverlayVisible);
+            Assert.Equal("Game Over! You Lose! you have less than $1, you can try again if you wish, clicking ok will restart the game", _viewModel.MessageOverlayText);
         }
         [Fact]
         public void StockPrices_ShouldUpdateAfterOneAndTwoMinutes()
