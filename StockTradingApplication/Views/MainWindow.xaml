@@ -28,36 +28,36 @@
         </Grid.RowDefinitions>
 
         <Label Grid.Row="0"
-                Grid.ColumnSpan="2"
-                Content="Stock Trading Application"
+               Grid.ColumnSpan="2"
+               Content="Stock Trading Application"
                FontSize="30"
-                FontWeight="Bold"
-                HorizontalAlignment="Center"
-                Margin="10"
+               FontWeight="Bold"
+               HorizontalAlignment="Center"
+               Margin="10"
                VerticalAlignment="Center"/>
 
         <!-- ListBox of stocks -->
         <Grid Name="StockListGrid"
-                Grid.Column="0"
-                Grid.Row="1">
+              Grid.Column="0"
+              Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Label Content="Stocks available for buying"
-                    FontWeight="Bold"
+                   FontWeight="Bold"
                    FontSize="14"
-                    HorizontalAlignment="Center"
-                    Margin="10"
-                    Grid.Row="0"/>
+                   HorizontalAlignment="Center"
+                   Margin="10"
+                   Grid.Row="0"/>
             <ListBox ItemsSource="{Binding Stocks}"
-                    SelectedItem="{Binding SelectedStock}"
+                     SelectedItem="{Binding SelectedStock}"
                      Grid.Row="1">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Vertical">
                             <TextBlock Text="{Binding Symbol}"
-                                    FontWeight="Bold"/>
+                                       FontWeight="Bold"/>
                             <TextBlock Text="{Binding Quantity, StringFormat='Quantity: {0}'}"/>
                             <TextBlock Text="{Binding Price, StringFormat='Price: {0:C}'}"/>
                         </StackPanel>
@@ -68,36 +68,40 @@
 
         <!-- Elapsed time and restart button -->
         <Grid Name="TimerRestartGrid"
-                Grid.Column="1"
-                Grid.Row="1">
+              Grid.Column="1"
+              Grid.Row="1">
             <Button Command="{Binding RestartCommand}"
                     FontSize="20"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center">
                 Restart
             </Button>
-            <Label Content="{Binding ElapsedTime, StringFormat='{}{0:HH:mm:ss}'}"
-                    FontSize="20"
+            <Label FontSize="20"
                    HorizontalAlignment="Right"
-                    VerticalAlignment="Top"/>
+                   VerticalAlignment="Top">
+                <TextBlock>
+                    <Run Text="Elapsed Time: "/>
+                    <Run Text="{Binding ElapsedTime, StringFormat='{}{0:hh\\:mm\\:ss}'}"/>
+                </TextBlock>
+            </Label>
         </Grid>
 
         <!-- Financial portfolio with data grid and label -->
         <Grid Name="FinancialPortfolioGrid"
-                Grid.Column="0"
-                Grid.Row="2">
+              Grid.Column="0"
+              Grid.Row="2">
             <Label Content="Financial Portfolio"
                    FontSize="18"
-                    FontWeight="Bold"
-                    HorizontalAlignment="Center"
-                    Margin="10"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"
+                   Margin="10"
                    VerticalAlignment="Top"/>
             <DataGrid ItemsSource="{Binding FinancialPortfolio.StocksPortfolio}"
-                    SelectedItem="{Binding SelectedPortfolioStock}"
+                      SelectedItem="{Binding SelectedPortfolioStock}"
                       AutoGenerateColumns="False"
-                    SelectionMode="Single"
-                    Margin="10"
-                    HorizontalAlignment="Left"
+                      SelectionMode="Single"
+                      Margin="10"
+                      HorizontalAlignment="Left"
                       VerticalAlignment="Center">
                 <DataGrid.Columns>
                     <DataGridTemplateColumn Header="Symbol">
@@ -127,7 +131,7 @@
             </DataGrid>
             <Label FontSize="18"
                    HorizontalAlignment="Right"
-                    VerticalAlignment="Center">
+                   VerticalAlignment="Center">
                 <TextBlock>
                     <Run Text="Money: "/>
                     <Run Text="{Binding FinancialPortfolio.Money, StringFormat={}{0:C}}"/>
@@ -137,8 +141,8 @@
 
         <!-- Buttons to buy and sell stocks -->
         <Grid Name="ButtonsBuySellGrid"
-                Grid.Column="1"
-                Grid.Row="2">
+              Grid.Column="1"
+              Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="20"/>
@@ -161,19 +165,19 @@
 
         <!-- Message Overlay Grid -->
         <Grid Name="MessageOverlayGrid"
-                Grid.RowSpan="3"
-                Grid.ColumnSpan="2"
+              Grid.RowSpan="3"
+              Grid.ColumnSpan="2"
               Visibility="{Binding IsMessageVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
               Background="#80000000">
             <StackPanel HorizontalAlignment="Center"
-                    VerticalAlignment="Center">
+                        VerticalAlignment="Center">
                 <TextBlock Text="{Binding Message}"
-                        Margin="10"
-                        FontSize="24"
+                           Margin="10"
+                           FontSize="24"
                            Foreground="White"
-                        TextWrapping="Wrap"
-                        MaxWidth="400"
-                        HorizontalAlignment="Center"/>
+                           TextWrapping="Wrap"
+                           MaxWidth="400"
+                           HorizontalAlignment="Center"/>
                 <Button Content="OK"
                         Command="{Binding CloseMessageCommand}"
                         FontSize="24"
