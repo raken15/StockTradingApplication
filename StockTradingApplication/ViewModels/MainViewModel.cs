@@ -146,6 +146,10 @@ namespace StockTradingApplication.ViewModels
         #region Constructor and initialization
         public MainViewModel()
         {
+            Initialization();
+        }
+        private void Initialization()
+        {
             InitializeStockRepository();
             InitializeFinancialPortfolio();
             InitializeCommands();
@@ -193,10 +197,22 @@ namespace StockTradingApplication.ViewModels
         }
         private void InitializeCommands()
         {
-            BuyStockCommand = new RelayCommand((param) => BuyStock(), (param) => CanBuyStock());
-            SellStockCommand = new RelayCommand((param) => SellStock(), (param) => CanSellStock());
-            RestartCommand = new RelayCommand(Restart);
-            CloseMessageCommand = new RelayCommand(CloseMessage);
+            if (BuyStockCommand == null)
+            {
+                BuyStockCommand = new RelayCommand((param) => BuyStock(), (param) => CanBuyStock());
+            }
+            if (SellStockCommand == null)
+            {
+                SellStockCommand = new RelayCommand((param) => SellStock(), (param) => CanSellStock());
+            }
+            if (RestartCommand == null)
+            {
+                RestartCommand = new RelayCommand(Restart);
+            }
+            if (CloseMessageCommand == null)
+            {
+                CloseMessageCommand = new RelayCommand(CloseMessage);
+            }
         }
         private void InitializeTimers()
         {
@@ -334,9 +350,7 @@ namespace StockTradingApplication.ViewModels
         #region Restart event handler
         private void Restart(object obj)
         {
-            InitializeFinancialPortfolio();
-            InitializeStockRepository();
-            InitializeTimers();
+            Initialization();
         }
         #endregion
         #region CloseMessage event handler
