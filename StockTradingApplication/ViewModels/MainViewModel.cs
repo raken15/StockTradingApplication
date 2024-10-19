@@ -12,8 +12,14 @@ namespace StockTradingApplication.ViewModels
     public class MainViewModel : INotifyPropertyChanged, IDisposable
     {
         #region Constants
+        private const float STARTING_MONEY = 1000.0f;
+        private const float WINNING_MONEY = 10000.0f;
+        private const float LOSING_MONEY = 1.0f;
+        private const int HIGHEST_STOCK_PRICE = 4000;
+        private const int LOWEST_STOCK_PRICE = 1;
         private const int TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS = 1;  // 1 second
         private const int TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS = 60;  // 1 minute
+
         #endregion
         #region Fields
         private IRepository<StockModel, string> _stockRepository;
@@ -144,6 +150,7 @@ namespace StockTradingApplication.ViewModels
             InitializeFinancialPortfolio();
             InitializeCommands();
             InitializeTimers();
+            SimulateTick(); // make the initial stocks to start with random prices
         }
         private void InitializeStockRepository()
         {
@@ -172,7 +179,7 @@ namespace StockTradingApplication.ViewModels
             {
                 var financialPortfolioModel = new FinancialPortfolioModel
                 {
-                    Money = 1000.0f,
+                    Money = STARTING_MONEY,
                     Stocks = new List<StockModel>()
                 };
                 FinancialPortfolio = new FinancialPortfolioViewModel(financialPortfolioModel);
@@ -181,7 +188,7 @@ namespace StockTradingApplication.ViewModels
             else
             {
                 FinancialPortfolio.StocksPortfolio.Clear();
-                FinancialPortfolio.Money = 1000.0f;
+                FinancialPortfolio.Money = STARTING_MONEY;
             }
         }
         private void InitializeCommands()
@@ -286,7 +293,7 @@ namespace StockTradingApplication.ViewModels
             var random = new Random();
             foreach (var stock in Stocks)
             {
-                var newPrice = random.Next(1, 4001) + random.Next(100) / 100.0f;
+                var newPrice = random.Next(LOWEST_STOCK_PRICE, HIGHEST_STOCK_PRICE + 1) + random.Next(100) / 100.0f;
                 stock.Price = newPrice;
 
                 var portfolioStock = FinancialPortfolio.StocksPortfolio.FirstOrDefault(ps => ps.Symbol == stock.Symbol);
@@ -311,12 +318,12 @@ namespace StockTradingApplication.ViewModels
         {
             if (e.PropertyName == nameof(FinancialPortfolioViewModel.Money))
             {
-                if (FinancialPortfolio.Money >= 10000)
+                if (FinancialPortfolio.Money >= WINNING_MONEY)
                 {
                     StopTimers();
                     ShowMessage("Congratulations! You win! you reached $10000, clicking ok will restart the game");
                 }
-                else if (FinancialPortfolio.Money < 1)
+                else if (FinancialPortfolio.Money < LOSING_MONEY)
                 {
                     StopTimers();
                     ShowMessage("Game Over! You Lose! you have less than $1, you can try again if you wish, clicking ok will restart the game");
