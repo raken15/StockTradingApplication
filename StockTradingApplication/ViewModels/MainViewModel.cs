@@ -397,10 +397,7 @@ namespace StockTradingApplication.ViewModels
                 FinancialPortfolio.PropertyChanged -= FinancialPortfolio_PropertyChanged;
 
             }
-            if (_stockRepository != null)
-            {
-                _stockRepository.RemoveAll();
-            }
+            _stockRepository?.Clear();
         }
         #endregion
     }
