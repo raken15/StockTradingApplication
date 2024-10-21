@@ -157,18 +157,80 @@
                 <!-- add a 20 pixel gap -->
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
             <Button Content="Buy Stock"
                     Command="{Binding BuyStockCommand}"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
-                    FontSize="22"
+                    FontSize="20"
+                    Grid.Row = "0"
                     Grid.Column="0"/>
             <Button Content="Sell Stock"
                     Command="{Binding SellStockCommand}"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
-                    FontSize="22"
+                    FontSize="20"
+                    Grid.Row = "0"
                     Grid.Column="2"/>
+            <Grid x:Name="PriceConditionGrid" Grid.Row="1" Grid.ColumnSpan = "3">
+                <!-- Define rows -->
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Define columns for the first row -->
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Label Content="Price for buying/selling with condition:"
+                       FontSize="16"
+                        Margin="0,0,10,0"
+                        Target="{Binding ElementName=PriceConditionTextBox}"
+                        Grid.Row="0"
+                        Grid.Column="0"/>
+                <TextBox x:Name="PriceConditionTextBox"
+                        Text="{Binding PriceConditionAmount, StringFormat={}{0:C}, UpdateSourceTrigger=PropertyChanged}"
+                        FontSize="16"
+                        Margin="0,5,10,0"
+                         Grid.Row="0"
+                         Grid.Column="1"/>
+                <ComboBox ItemsSource="{Binding PriceConditionOptions}"
+                        SelectedItem="{Binding SelectedPriceCondition}"
+                        FontSize="16"
+                        Margin="0,0,0,10"
+                        HorizontalAlignment="Center"
+                        Grid.Row="1"
+                        Grid.ColumnSpan="2"/>
+                <Button Command="{Binding BuyStocksWithConditionCommand}"
+                        FontSize="16"
+                        Margin="0,0,0,0"
+                        Width="100"
+                        HorizontalAlignment="Left"
+                        Grid.Row="2"
+                        Grid.Column = "0">
+                    <TextBlock Text="Buy Stocks with price Condition"
+                            TextWrapping="Wrap"
+                            TextAlignment="Center"/>
+                </Button>
+                <Button Command="{Binding SellStocksWithConditionCommand}"
+                        FontSize="16"
+                        Width="100"
+                        HorizontalAlignment="Right"
+                        Margin="0,0,0,0"
+                        Grid.Row="2"
+                        Grid.Column="1">
+                    <TextBlock Text="Sell Stocks with price Condition"
+                               TextWrapping="Wrap"
+                               TextAlignment="Center"/>
+                </Button>
+                        
+            </Grid>
         </Grid>
 
         <!-- Message Overlay Grid -->
