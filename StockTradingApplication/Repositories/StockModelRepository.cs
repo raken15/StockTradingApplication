@@ -2,15 +2,14 @@ using StockTradingApplication.Models;
 
 namespace StockTradingApplication.Repositories;
 
+/// <summary>
+/// This class is a repository for stock data. It contains all the methods and properties
+/// needed to store and retrieve stock data. It provides a simple way to manage stock data
+/// in the application.
+/// </summary>
 public class StockModelRepository : IRepository<StockModel, string>
 {
     private readonly List<StockModel> _stocks;
-    public enum PriceCondition
-    {
-        Above,
-        Below,
-        Equal
-    }
     public int Count => _stocks.Count;
     public StockModelRepository()
     {
@@ -82,7 +81,6 @@ public class StockModelRepository : IRepository<StockModel, string>
         }
         return false;
     }
-
     public void Clear()
     {
         _stocks.Clear();
@@ -90,19 +88,5 @@ public class StockModelRepository : IRepository<StockModel, string>
     public bool Contains(string stockSymbol)
     {
         return _stocks.Any(s => s.Symbol == stockSymbol);
-    }
-    public IEnumerable<StockModel> GetAllStocksByPriceCondition(float stockPrice, PriceCondition condition)
-    {
-        switch (condition)
-        {
-            case PriceCondition.Above:
-                return _stocks.Where(x => x.Price > stockPrice);
-            case PriceCondition.Below:
-                return _stocks.Where(x => x.Price < stockPrice);
-            case PriceCondition.Equal:
-                return _stocks.Where(x => x.Price == stockPrice);
-            default:
-                throw new ArgumentOutOfRangeException(nameof(condition), condition, null);
-        }
     }
 }
