@@ -13,13 +13,6 @@ namespace StockTradingApplication.ViewModels
     public class MainViewModel : INotifyPropertyChanged, IDisposable
     {
         #region Constants
-        // private const float STARTING_MONEY = 1000.0f;
-        // private const float WINNING_MONEY = 10000.0f;
-        // private const float LOSING_MONEY = 1.0f;
-        // private const int HIGHEST_STOCK_PRICE = 4000;
-        // private const int LOWEST_STOCK_PRICE = 1;
-        // private const int TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS = 1;  // 1 second
-        // private const int TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS = 60;  // 1 minute
         #endregion
         #region Fields
         private IRepository<StockModel, string> _stockRepository;
@@ -35,16 +28,6 @@ namespace StockTradingApplication.ViewModels
         private PriceCondition _selectedPriceCondition;
         private float _priceConditionAmount;
         private ObservableCollection<PriceCondition> _priceConditionOptions;
-        // private readonly List<string> _requiredInitialSettingsKeys = new List<string>
-        // {
-        //     "STARTING_MONEY",
-        //     "WINNING_MONEY",
-        //     "LOSING_MONEY",
-        //     "HIGHEST_STOCK_PRICE",
-        //     "LOWEST_STOCK_PRICE",
-        //     "TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS",
-        //     "TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS"
-        // };
         // Define the required settings and their expected types
         private readonly Dictionary<string, Type> _requiredSettings = new Dictionary<string, Type>
         {
