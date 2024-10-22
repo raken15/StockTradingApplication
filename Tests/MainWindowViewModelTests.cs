@@ -7,15 +7,7 @@ namespace Tests
     public class MainViewModelTests : IDisposable
     {
         #region Constants
-        private const float STARTING_MONEY = 1000.0f;
-        private const float WINNING_MONEY = 10000.0f;
-        private const float LOSING_MONEY = 1.0f;
-        private const int HIGHEST_STOCK_PRICE = 4000;
-        private const int LOWEST_STOCK_PRICE = 1;
-        private const int TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS = 1;  // 1 second
-        private const int TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS = 60;  // 1 minute
         private const float LOWEST_CHANGE_IN_MONEY = 0.01f;
-
         #endregion
         private MainViewModel _viewModel;
 
@@ -29,6 +21,8 @@ namespace Tests
         {
             // Assert
             Assert.NotNull(_viewModel);
+            Assert.NotNull(_viewModel.InitialSettingsDict);
+            Assert.NotEmpty(_viewModel.InitialSettingsDict);
             Assert.NotNull(_viewModel.BuyStockCommand);
             Assert.NotNull(_viewModel.SellStockCommand);
             Assert.NotNull(_viewModel.RestartCommand);
@@ -48,8 +42,6 @@ namespace Tests
             Assert.Null(_viewModel.SelectedPortfolioStock);
 
             Assert.Equal(default(TimeSpan), _viewModel.ElapsedTime);
-
-
         }
 
         [Fact]
@@ -111,28 +103,28 @@ namespace Tests
         public void FinancialPortfolio_PropertyChanged_ShouldShowWinningMessage()
         {
             // Arrange
-            _viewModel.FinancialPortfolio.Money = WINNING_MONEY - LOWEST_CHANGE_IN_MONEY; // Just below winning threshold
+            _viewModel.FinancialPortfolio.Money = _viewModel.InitialSettingsDict["WINNING_MONEY"] - LOWEST_CHANGE_IN_MONEY; // Just below winning threshold
 
             // Act
             _viewModel.FinancialPortfolio.Money += LOWEST_CHANGE_IN_MONEY; // Trigger the condition
 
             // Assert
             Assert.True(_viewModel.IsMessageOverlayVisible);
-            Assert.Equal($"Congratulations! You win! you reached ${WINNING_MONEY}, clicking ok will restart the game", _viewModel.MessageOverlayText);
+            Assert.Equal($"Congratulations! You win! you reached ${_viewModel.InitialSettingsDict["WINNING_MONEY"]}, clicking ok will restart the game", _viewModel.MessageOverlayText);
         }
 
         [Fact]
         public void FinancialPortfolio_PropertyChanged_ShouldShowLosingMessage()
         {
             // Arrange
-            _viewModel.FinancialPortfolio.Money = LOSING_MONEY; // Just above losing threshold
+            _viewModel.FinancialPortfolio.Money = _viewModel.InitialSettingsDict["LOSING_MONEY"]; // Just above losing threshold
 
             // Act
             _viewModel.FinancialPortfolio.Money -= LOWEST_CHANGE_IN_MONEY; // Trigger the condition
 
             // Assert
             Assert.True(_viewModel.IsMessageOverlayVisible);
-            Assert.Equal($"Game Over! You Lose! you have less than ${LOSING_MONEY}, you can try again if you wish, clicking ok will restart the game", _viewModel.MessageOverlayText);
+            Assert.Equal($"Game Over! You Lose! you have less than ${_viewModel.InitialSettingsDict["LOSING_MONEY"]}, you can try again if you wish, clicking ok will restart the game", _viewModel.MessageOverlayText);
         }
         [Fact]
         public void StockPrices_ShouldUpdateAfterOneAndTwoMinutes()
@@ -156,11 +148,11 @@ namespace Tests
             // Assert
             Assert.NotNull(_viewModel.Stocks);
             Assert.NotEmpty(_viewModel.Stocks);
-            Assert.True(!initialStockPrices.Any(p => p < LOWEST_STOCK_PRICE || p > HIGHEST_STOCK_PRICE));
+            Assert.True(!initialStockPrices.Any(p => p < _viewModel.InitialSettingsDict["LOWEST_STOCK_PRICE"] || p > _viewModel.InitialSettingsDict["HIGHEST_STOCK_PRICE"]));
             Assert.NotEqual(initialStockPrices, pricesAfterOneMinute);
-            Assert.True(!pricesAfterOneMinute.Any(p => p < LOWEST_STOCK_PRICE || p > HIGHEST_STOCK_PRICE));
+            Assert.True(!pricesAfterOneMinute.Any(p => p < _viewModel.InitialSettingsDict["LOWEST_STOCK_PRICE"] || p > _viewModel.InitialSettingsDict["HIGHEST_STOCK_PRICE"]));
             Assert.NotEqual(initialStockPrices, pricesAfterTwoMinutes);
-            Assert.True(!pricesAfterTwoMinutes.Any(p => p < LOWEST_STOCK_PRICE || p > HIGHEST_STOCK_PRICE));
+            Assert.True(!pricesAfterTwoMinutes.Any(p => p < _viewModel.InitialSettingsDict["LOWEST_STOCK_PRICE"] || p > _viewModel.InitialSettingsDict["HIGHEST_STOCK_PRICE"]));
             Assert.NotEqual(pricesAfterOneMinute, pricesAfterTwoMinutes);
 
             Assert.NotNull(_viewModel.FinancialPortfolio);
@@ -206,7 +198,7 @@ namespace Tests
             Assert.True(_viewModel.FinancialPortfolio.StocksPortfolio.Any(x => x.Symbol == qualifiedStock.Symbol));
             Assert.True(_viewModel.FinancialPortfolio.StocksPortfolio.First(x => x.Symbol == qualifiedStock.Symbol).Quantity > 0);
             Assert.Equal(qualifiedStockInitialQuantity - 1, qualifiedStock.Quantity);
-            Assert.True(_viewModel.FinancialPortfolio.Money <= STARTING_MONEY - qualifiedStock.Price);
+            Assert.True(_viewModel.FinancialPortfolio.Money <= _viewModel.InitialSettingsDict["STARTING_MONEY"] - qualifiedStock.Price);
         }
 
         [Theory]

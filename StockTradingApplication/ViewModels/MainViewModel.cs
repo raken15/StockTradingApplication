@@ -6,20 +6,20 @@ using System.ComponentModel;
 using System.Windows.Threading;
 using System.Windows.Input;
 using System.Windows;
+using System.IO;
 
 namespace StockTradingApplication.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged, IDisposable
     {
         #region Constants
-        private const float STARTING_MONEY = 1000.0f;
-        private const float WINNING_MONEY = 10000.0f;
-        private const float LOSING_MONEY = 1.0f;
-        private const int HIGHEST_STOCK_PRICE = 4000;
-        private const int LOWEST_STOCK_PRICE = 1;
-        private const int TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS = 1;  // 1 second
-        private const int TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS = 60;  // 1 minute
-
+        // private const float STARTING_MONEY = 1000.0f;
+        // private const float WINNING_MONEY = 10000.0f;
+        // private const float LOSING_MONEY = 1.0f;
+        // private const int HIGHEST_STOCK_PRICE = 4000;
+        // private const int LOWEST_STOCK_PRICE = 1;
+        // private const int TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS = 1;  // 1 second
+        // private const int TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS = 60;  // 1 minute
         #endregion
         #region Fields
         private IRepository<StockModel, string> _stockRepository;
@@ -35,6 +35,29 @@ namespace StockTradingApplication.ViewModels
         private PriceCondition _selectedPriceCondition;
         private float _priceConditionAmount;
         private ObservableCollection<PriceCondition> _priceConditionOptions;
+        // private readonly List<string> _requiredInitialSettingsKeys = new List<string>
+        // {
+        //     "STARTING_MONEY",
+        //     "WINNING_MONEY",
+        //     "LOSING_MONEY",
+        //     "HIGHEST_STOCK_PRICE",
+        //     "LOWEST_STOCK_PRICE",
+        //     "TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS",
+        //     "TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS"
+        // };
+        // Define the required settings and their expected types
+        private readonly Dictionary<string, Type> _requiredSettings = new Dictionary<string, Type>
+        {
+            { "STARTING_MONEY", typeof(float) },
+            { "WINNING_MONEY", typeof(float) },
+            { "LOSING_MONEY", typeof(float) },
+            { "HIGHEST_STOCK_PRICE", typeof(int) },
+            { "LOWEST_STOCK_PRICE", typeof(int) },
+            { "TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS", typeof(int) },
+            { "TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS", typeof(int) },
+            // Add more required settings here
+        };
+        private readonly string _initialSettingsFileName = "InitialSettings.txt";
         #endregion
         #region Properties
         public ObservableCollection<StockViewModel> Stocks { get; set; }
@@ -131,7 +154,7 @@ namespace StockTradingApplication.ViewModels
                 {
                     if (_remainingTimeBeforeNextPriceUpdate == TimeSpan.Zero)
                     {
-                        _remainingTimeBeforeNextPriceUpdate = TimeSpan.FromSeconds(TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS);
+                        _remainingTimeBeforeNextPriceUpdate = TimeSpan.FromSeconds(InitialSettingsDict["TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS"]);
                     }
                     else
                     {
@@ -176,7 +199,7 @@ namespace StockTradingApplication.ViewModels
                 RaisePropertyChanged(nameof(PriceConditionOptions));
             }
         }
-
+        public Dictionary<string, dynamic> InitialSettingsDict { get; private set; }
         #endregion
         #region Commands
         public ICommand BuyStockCommand { get; private set; }
@@ -202,6 +225,11 @@ namespace StockTradingApplication.ViewModels
         #region Constructor and initialization
         public MainViewModel()
         {
+            if(!InitializeInitialSettings())
+            {
+                Console.WriteLine("Failed to initialize initial settings.");
+                Environment.Exit(1);
+            }
             _stockRepository = new StockModelRepository();
             InitializeCommands();
             PopulatePriceConditions();
@@ -214,10 +242,112 @@ namespace StockTradingApplication.ViewModels
             InitializeTimers();
             SimulateTick(); // make the initial stocks to start with random prices
         }
-        // private void InitializeStockRepository()
-        // {
-        //     InitializeStocks();
-        // }
+        private bool InitializeInitialSettings()
+        {
+            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", _initialSettingsFileName);
+            System.Console.WriteLine("File path is: " + filePath);
+            InitialSettingsDict = LoadDictionaryFromFile(filePath);
+            if (InitialSettingsDict == null || InitialSettingsDict.Count == 0)
+            {
+                return false;
+            }
+            return true;
+        }
+        /// <summary>
+        /// Reads the settings from the text file and stores them in a dictionary.
+        /// </summary>
+        /// <param name="filePath">The path to the settings file.</param>
+        /// <returns>A dictionary containing the key-value pairs.</returns>
+        private Dictionary<string, dynamic> LoadDictionaryFromFile(string filePath)
+        {
+            var dictionaryFromFile = new Dictionary<string, dynamic>();
+            try
+            {
+                if (File.Exists(filePath))
+                {
+                    var lines = File.ReadAllLines(filePath);
+                    foreach (var line in lines)
+                    {
+                        // Skip empty or comment lines
+                        if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))
+                            continue;
+                        // Split each line into key and value by colon
+                        var parts = line.Split(':');
+                        if (parts.Length == 2)
+                        {
+                            string key = parts[0].Trim();   // Get the key and trim whitespace
+                            string valueString = parts[1].Trim(); // Get the value and trim whitespace
+
+                            if (!dictionaryFromFile.ContainsKey(key))
+                            {
+                                if (int.TryParse(valueString, out int intValue))
+                                {
+                                    dictionaryFromFile[key] = intValue;
+                                }
+                                else if (float.TryParse(valueString, out float floatValue))
+                                {
+                                    dictionaryFromFile[key] = floatValue;
+                                }
+                                else
+                                {
+                                    dictionaryFromFile[key] = valueString; // Fallback to storing as string
+                                }
+                            }
+                            else
+                            {
+                                throw new Exception($"Duplicate key found: {key}");
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception($"Invalid format in line: {line}");
+                        }
+                    }
+                    if(dictionaryFromFile.Count == 0)
+                    {
+                        throw new Exception($"No key-value pairs found in file: {filePath}");
+                    }
+                    return ValidateRequiredKeys(dictionaryFromFile, _requiredSettings) ? dictionaryFromFile : null;
+                }
+                else
+                {
+                    throw new Exception($"File not found: {filePath}");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the error
+                Console.WriteLine($"Error loading dictionary from file: {filePath} - Details: {ex.Message}");
+                return null;
+            }
+        }
+        /// <summary>
+        /// Validates that all required keys are present in the dictionary.
+        /// </summary>
+        /// <param name="dictionaryChecked">The dictionary containing the loaded settings.</param>
+        /// <param name="requiredKeys">The list of required keys.</param>
+        /// <returns>True if all required keys are present, false otherwise.</returns>
+        private bool ValidateRequiredKeys(Dictionary<string, dynamic> dictionaryNeedsValidation, Dictionary<string, Type> requiredSettingsForValidation)
+        {
+            foreach (var requiredSetting in requiredSettingsForValidation)
+            {
+                string key = requiredSetting.Key;
+                Type expectedType = requiredSetting.Value;
+                if (!dictionaryNeedsValidation.ContainsKey(key))
+                {
+                    Console.WriteLine($"Missing required setting: {key}");
+                    return false; // Return false if a required key is missing
+                }
+                // Check if the value is of the expected type
+                if (dictionaryNeedsValidation[key]?.GetType() != expectedType)
+                {
+                    Console.WriteLine($"Invalid type for setting: {key}. Expected {expectedType}, but got {InitialSettingsDict[key]?.GetType()}");
+                    return false; // Return false if the type doesn't match
+                }
+            }
+            Console.WriteLine("All required settings are present. Validation successful.");
+            return true;
+        }
         private void InitializeStocks()
         {
             if (Stocks == null)
@@ -240,7 +370,7 @@ namespace StockTradingApplication.ViewModels
             {
                 var financialPortfolioModel = new FinancialPortfolioModel
                 {
-                    Money = STARTING_MONEY,
+                    Money = InitialSettingsDict["STARTING_MONEY"],
                     Stocks = new List<StockModel>()
                 };
                 FinancialPortfolio = new FinancialPortfolioViewModel(financialPortfolioModel);
@@ -249,7 +379,7 @@ namespace StockTradingApplication.ViewModels
             else
             {
                 FinancialPortfolio.StocksPortfolio.Clear();
-                FinancialPortfolio.Money = STARTING_MONEY;
+                FinancialPortfolio.Money = InitialSettingsDict["STARTING_MONEY"];
             }
         }
         private void InitializeCommands()
@@ -282,7 +412,7 @@ namespace StockTradingApplication.ViewModels
         private void InitializeTimers()
         {
             ElapsedTime = default(TimeSpan);
-            RemainingTimeBeforeNextPriceUpdate = TimeSpan.FromSeconds(TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS);
+            RemainingTimeBeforeNextPriceUpdate = TimeSpan.FromSeconds(InitialSettingsDict["TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS"]);
             if (_timerUpdatePrices != null && _elapsedTimeTimer != null)
             {
                 _timerUpdatePrices.Start();
@@ -291,15 +421,15 @@ namespace StockTradingApplication.ViewModels
             else
             {
                 _timerUpdatePrices = new DispatcherTimer
-                { Interval = TimeSpan.FromSeconds(TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS) };
+                { Interval = TimeSpan.FromSeconds(InitialSettingsDict["TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS"]) };
                 _timerUpdatePrices.Tick += UpdateStockPrices;
                 _timerUpdatePrices.Start();
                 _elapsedTimeTimer = new DispatcherTimer
-                { Interval = TimeSpan.FromSeconds(TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS) };
+                { Interval = TimeSpan.FromSeconds(InitialSettingsDict["TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS"]) };
                 _elapsedTimeTimer.Tick += (sender, args) =>
                 {
-                    ElapsedTime = ElapsedTime.Add(TimeSpan.FromSeconds(TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS));
-                    RemainingTimeBeforeNextPriceUpdate = TimeSpan.FromSeconds(TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS - ElapsedTime.Seconds);
+                    ElapsedTime = ElapsedTime.Add(TimeSpan.FromSeconds(InitialSettingsDict["TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS"]));
+                    RemainingTimeBeforeNextPriceUpdate = TimeSpan.FromSeconds(InitialSettingsDict["TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS"] - ElapsedTime.Seconds);
                 };
                 _elapsedTimeTimer.Start();
             }
@@ -393,7 +523,7 @@ namespace StockTradingApplication.ViewModels
             var random = new Random();
             foreach (var stock in Stocks)
             {
-                var newPrice = random.Next(LOWEST_STOCK_PRICE, HIGHEST_STOCK_PRICE + 1) + random.Next(100) / 100.0f;
+                var newPrice = random.Next(InitialSettingsDict["LOWEST_STOCK_PRICE"], InitialSettingsDict["HIGHEST_STOCK_PRICE"] + 1) + random.Next(100) / 100.0f;
                 stock.Price = newPrice;
 
                 var portfolioStock = FinancialPortfolio.StocksPortfolio.FirstOrDefault(ps => ps.Symbol == stock.Symbol);
@@ -420,15 +550,15 @@ namespace StockTradingApplication.ViewModels
         {
             if (e.PropertyName == nameof(FinancialPortfolioViewModel.Money))
             {
-                if (FinancialPortfolio.Money >= WINNING_MONEY)
+                if (FinancialPortfolio.Money >= InitialSettingsDict["WINNING_MONEY"])
                 {
                     StopTimers();
-                    ShowMessageOverlay($"Congratulations! You win! you reached ${WINNING_MONEY}, clicking ok will restart the game");
+                    ShowMessageOverlay($"Congratulations! You win! you reached ${InitialSettingsDict["WINNING_MONEY"]}, clicking ok will restart the game");
                 }
-                else if (FinancialPortfolio.Money < LOSING_MONEY)
+                else if (FinancialPortfolio.Money < InitialSettingsDict["LOSING_MONEY"])
                 {
                     StopTimers();
-                    ShowMessageOverlay($"Game Over! You Lose! you have less than ${LOSING_MONEY}, you can try again if you wish, clicking ok will restart the game");
+                    ShowMessageOverlay($"Game Over! You Lose! you have less than ${InitialSettingsDict["LOSING_MONEY"]}, you can try again if you wish, clicking ok will restart the game");
                 }
             }
         }
@@ -487,7 +617,7 @@ namespace StockTradingApplication.ViewModels
                     PriceCondition.Equal => x.Price == PriceConditionAmount,
                     _ => throw new ArgumentOutOfRangeException(nameof(SelectedPriceCondition), SelectedPriceCondition, null)
                 };
-                if(tradeStockOperation == TradeStockOperation.BuyStock)
+                if (tradeStockOperation == TradeStockOperation.BuyStock)
                 {
                     return Stocks.Any(stock => priceConditionPredicate(stock));
                 }
@@ -496,7 +626,7 @@ namespace StockTradingApplication.ViewModels
                     return FinancialPortfolio.StocksPortfolio.Any(stock => priceConditionPredicate(stock));
                 }
             }
-            return  false;
+            return false;
         }
         #endregion
         #endregion
@@ -522,7 +652,7 @@ namespace StockTradingApplication.ViewModels
             if (_elapsedTimeTimer != null)
             {
                 _elapsedTimeTimer.Stop();
-                _elapsedTimeTimer.Tick -= (s, e) => ElapsedTime = ElapsedTime.Add(TimeSpan.FromSeconds(TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS));
+                _elapsedTimeTimer.Tick -= (s, e) => ElapsedTime = ElapsedTime.Add(TimeSpan.FromSeconds(InitialSettingsDict["TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS"]));
                 _elapsedTimeTimer = null;
             }
 
