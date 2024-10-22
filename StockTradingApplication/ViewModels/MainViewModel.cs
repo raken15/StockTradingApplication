@@ -41,6 +41,7 @@ namespace StockTradingApplication.ViewModels
             // Add more required settings here
         };
         private readonly string _initialSettingsFileName = "InitialSettings.txt";
+        private readonly SimpleLogger _logger;
         #endregion
         #region Properties
         public ObservableCollection<StockViewModel> Stocks { get; set; }
@@ -208,9 +209,11 @@ namespace StockTradingApplication.ViewModels
         #region Constructor and initialization
         public MainViewModel()
         {
-            if(!InitializeInitialSettings())
+            _logger = new SimpleLogger("Logs/log.txt");
+            _logger.LogInfo("MainViewModel created");
+            if (!InitializeInitialSettings())
             {
-                Console.WriteLine("Failed to initialize initial settings.");
+                _logger.LogError("Failed to initialize initial settings.");
                 Environment.Exit(1);
             }
             _stockRepository = new StockModelRepository();
@@ -299,7 +302,7 @@ namespace StockTradingApplication.ViewModels
             catch (Exception ex)
             {
                 // Log the error
-                Console.WriteLine($"Error loading dictionary from file: {filePath} - Details: {ex.Message}");
+                _logger.LogError($"Failed loading dictionary from file: {filePath}");
                 return null;
             }
         }
@@ -317,17 +320,17 @@ namespace StockTradingApplication.ViewModels
                 Type expectedType = requiredSetting.Value;
                 if (!dictionaryNeedsValidation.ContainsKey(key))
                 {
-                    Console.WriteLine($"Missing required setting: {key}");
+                    _logger.LogError($"Missing required setting: {key}");
                     return false; // Return false if a required key is missing
                 }
                 // Check if the value is of the expected type
                 if (dictionaryNeedsValidation[key]?.GetType() != expectedType)
                 {
-                    Console.WriteLine($"Invalid type for setting: {key}. Expected {expectedType}, but got {InitialSettingsDict[key]?.GetType()}");
+                    _logger.LogError($"Invalid type for setting: {key}. Expected {expectedType}, but got {InitialSettingsDict[key]?.GetType()}");
                     return false; // Return false if the type doesn't match
                 }
             }
-            Console.WriteLine("All required settings are present. Validation successful.");
+            _logger.LogInfo("All required settings are present. Validation successful.");
             return true;
         }
         private void InitializeStocks()
@@ -436,15 +439,17 @@ namespace StockTradingApplication.ViewModels
                 // Simulated stock buying logic
                 SelectedStock.Quantity--;
                 UpdateFinancialPortfolioAfterBuyOrSell(SelectedStock, tradeStockOperation);
-                ((RelayCommand<object>)BuyStockCommand).RaiseCanExecuteChanged();
             }
             else if (tradeStockOperation == TradeStockOperation.SellStock && SelectedPortfolioStock != null)
             {
                 // Simulated stock selling logic
                 SelectedPortfolioStock.Quantity--;
                 UpdateFinancialPortfolioAfterBuyOrSell(SelectedPortfolioStock, tradeStockOperation);
-                ((RelayCommand<object>)SellStockCommand).RaiseCanExecuteChanged();
             }
+            ((RelayCommand<object>)BuyStocksWithConditionCommand).RaiseCanExecuteChanged();
+            ((RelayCommand<object>)SellStocksWithConditionCommand).RaiseCanExecuteChanged();
+            ((RelayCommand<object>)BuyStockCommand).RaiseCanExecuteChanged();
+            ((RelayCommand<object>)SellStockCommand).RaiseCanExecuteChanged();
         }
         private void UpdateFinancialPortfolioAfterBuyOrSell(StockViewModel stockTraded, TradeStockOperation operation)
         {
@@ -518,6 +523,9 @@ namespace StockTradingApplication.ViewModels
             RaisePropertyChanged(nameof(FinancialPortfolio));
             ((RelayCommand<object>)BuyStocksWithConditionCommand).RaiseCanExecuteChanged();
             ((RelayCommand<object>)SellStocksWithConditionCommand).RaiseCanExecuteChanged();
+            ((RelayCommand<object>)BuyStockCommand).RaiseCanExecuteChanged();
+            ((RelayCommand<object>)SellStockCommand).RaiseCanExecuteChanged();
+            _logger.LogInfo("Stock prices updated");
         }
         #endregion
         #region PropertyChanged event handler
@@ -548,6 +556,7 @@ namespace StockTradingApplication.ViewModels
         #region Restart event handler
         private void Restart()
         {
+            _logger.LogInfo("Restart called");
             InitializationOnRestart();
         }
         #endregion
@@ -586,6 +595,8 @@ namespace StockTradingApplication.ViewModels
                 });
                 ((RelayCommand<object>)BuyStocksWithConditionCommand).RaiseCanExecuteChanged();
                 ((RelayCommand<object>)SellStocksWithConditionCommand).RaiseCanExecuteChanged();
+                ((RelayCommand<object>)BuyStockCommand).RaiseCanExecuteChanged();
+                ((RelayCommand<object>)SellStockCommand).RaiseCanExecuteChanged();
             }
         }
         private bool CanBuyOrSellStocksWithCondition(TradeStockOperation tradeStockOperation)
