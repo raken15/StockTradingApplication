@@ -202,22 +202,22 @@ namespace StockTradingApplication.ViewModels
         #region Constructor and initialization
         public MainViewModel()
         {
-            Initialization();
-        }
-        private void Initialization()
-        {
-            InitializeStockRepository();
-            InitializeFinancialPortfolio();
+            _stockRepository = new StockModelRepository();
             InitializeCommands();
-            InitializeTimers();
             PopulatePriceConditions();
+            InitializationOnRestart();
+        }
+        private void InitializationOnRestart()
+        {
+            InitializeStocks();
+            InitializeFinancialPortfolio();
+            InitializeTimers();
             SimulateTick(); // make the initial stocks to start with random prices
         }
-        private void InitializeStockRepository()
-        {
-            _stockRepository = new StockModelRepository();
-            InitializeStocks();
-        }
+        // private void InitializeStockRepository()
+        // {
+        //     InitializeStocks();
+        // }
         private void InitializeStocks()
         {
             if (Stocks == null)
@@ -228,8 +228,8 @@ namespace StockTradingApplication.ViewModels
             {
                 Stocks.Clear();
             }
-            var stocks = _stockRepository.GetAll();
-            foreach (var stock in stocks)
+            var stocksFromRepository = _stockRepository.GetAll();
+            foreach (var stock in stocksFromRepository)
             {
                 Stocks.Add(new StockViewModel(stock));
             }
@@ -436,7 +436,7 @@ namespace StockTradingApplication.ViewModels
         #region Restart event handler
         private void Restart()
         {
-            Initialization();
+            InitializationOnRestart();
         }
         #endregion
         #region CloseMessage event handler
