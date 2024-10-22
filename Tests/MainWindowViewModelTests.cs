@@ -118,7 +118,7 @@ namespace Tests
 
             // Assert
             Assert.True(_viewModel.IsMessageOverlayVisible);
-            Assert.Equal($"Congratulations! You win! you reached {WINNING_MONEY}$, clicking ok will restart the game", _viewModel.MessageOverlayText);
+            Assert.Equal($"Congratulations! You win! you reached ${WINNING_MONEY}, clicking ok will restart the game", _viewModel.MessageOverlayText);
         }
 
         [Fact]
@@ -132,7 +132,7 @@ namespace Tests
 
             // Assert
             Assert.True(_viewModel.IsMessageOverlayVisible);
-            Assert.Equal($"Game Over! You Lose! you have less than {LOSING_MONEY}$, you can try again if you wish, clicking ok will restart the game", _viewModel.MessageOverlayText);
+            Assert.Equal($"Game Over! You Lose! you have less than ${LOSING_MONEY}, you can try again if you wish, clicking ok will restart the game", _viewModel.MessageOverlayText);
         }
         [Fact]
         public void StockPrices_ShouldUpdateAfterOneAndTwoMinutes()
