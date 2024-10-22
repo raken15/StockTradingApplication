@@ -1,8 +1,11 @@
-using System;
 using System.IO;
 
 namespace StockTradingApplication.Helpers
 {
+    /// <summary>
+    /// A simple class for logging messages to a text file.
+    /// The class is thread-safe and will append the messages to the file.
+    /// </summary>
     public class SimpleLogger
     {
         private readonly string _filePath;

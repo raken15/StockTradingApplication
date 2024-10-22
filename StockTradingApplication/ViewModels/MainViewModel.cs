@@ -5,7 +5,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Threading;
 using System.Windows.Input;
-using System.Windows;
 using System.IO;
 
 namespace StockTradingApplication.ViewModels
