@@ -423,12 +423,12 @@ namespace StockTradingApplication.ViewModels
                 if (FinancialPortfolio.Money >= WINNING_MONEY)
                 {
                     StopTimers();
-                    ShowMessageOverlay("Congratulations! You win! you reached $10000, clicking ok will restart the game");
+                    ShowMessageOverlay($"Congratulations! You win! you reached {WINNING_MONEY}$, clicking ok will restart the game");
                 }
                 else if (FinancialPortfolio.Money < LOSING_MONEY)
                 {
                     StopTimers();
-                    ShowMessageOverlay("Game Over! You Lose! you have less than $1, you can try again if you wish, clicking ok will restart the game");
+                    ShowMessageOverlay($"Game Over! You Lose! you have less than {LOSING_MONEY}$, you can try again if you wish, clicking ok will restart the game");
                 }
             }
         }
