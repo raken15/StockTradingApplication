@@ -228,7 +228,6 @@ namespace StockTradingApplication.ViewModels
         private bool InitializeInitialSettings()
         {
             string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", _initialSettingsFileName);
-            System.Console.WriteLine("File path is: " + filePath);
             InitialSettingsDict = LoadDictionaryFromFile(filePath);
             if (InitialSettingsDict == null || InitialSettingsDict.Count == 0)
             {
