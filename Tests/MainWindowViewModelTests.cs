@@ -4,8 +4,19 @@ using StockTradingApplication.Models;
 
 namespace Tests
 {
-    public class MainViewModelTests: IDisposable
+    public class MainViewModelTests : IDisposable
     {
+        #region Constants
+        private const float STARTING_MONEY = 1000.0f;
+        private const float WINNING_MONEY = 10000.0f;
+        private const float LOSING_MONEY = 1.0f;
+        private const int HIGHEST_STOCK_PRICE = 4000;
+        private const int LOWEST_STOCK_PRICE = 1;
+        private const int TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS = 1;  // 1 second
+        private const int TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS = 60;  // 1 minute
+        private const float LOWEST_CHANGE_IN_MONEY = 0.01f;
+
+        #endregion
         private MainViewModel _viewModel;
 
         public MainViewModelTests()
@@ -17,6 +28,17 @@ namespace Tests
         public void Initialization_ShouldFillStocksInitializeFinancialPortfolioAndInitializeCommands()
         {
             // Assert
+            Assert.NotNull(_viewModel);
+            Assert.NotNull(_viewModel.BuyStockCommand);
+            Assert.NotNull(_viewModel.SellStockCommand);
+            Assert.NotNull(_viewModel.RestartCommand);
+            Assert.NotNull(_viewModel.CloseMessageOverlayCommand);
+            Assert.NotNull(_viewModel.BuyStocksWithConditionCommand);
+            Assert.NotNull(_viewModel.SellStocksWithConditionCommand);
+
+            Assert.NotNull(_viewModel.PriceConditionOptions);
+            Assert.NotEmpty(_viewModel.PriceConditionOptions);
+
             Assert.NotNull(_viewModel.Stocks);
             Assert.NotEmpty(_viewModel.Stocks);
             Assert.NotNull(_viewModel.FinancialPortfolio);
@@ -25,13 +47,9 @@ namespace Tests
             Assert.Null(_viewModel.SelectedStock);
             Assert.Null(_viewModel.SelectedPortfolioStock);
 
-            Assert.NotNull(_viewModel.BuyStockCommand);
-            Assert.NotNull(_viewModel.SellStockCommand);
-            Assert.NotNull(_viewModel.RestartCommand);
-            Assert.NotNull(_viewModel.CloseMessageCommand);
-
-            Assert.NotNull(_viewModel.ElapsedTime);
             Assert.Equal(default(TimeSpan), _viewModel.ElapsedTime);
+
+
         }
 
         [Fact]
@@ -77,31 +95,44 @@ namespace Tests
         }
 
         [Fact]
+        public void CanSellStock_ShouldReturnFalse_WhenNoStockIsSelected()
+        {
+            // Arrange
+            _viewModel.SelectedPortfolioStock = null;
+
+            // Act
+            var canExecute = _viewModel.SellStockCommand.CanExecute(null);
+
+            // Assert
+            Assert.False(canExecute);
+        }
+
+        [Fact]
         public void FinancialPortfolio_PropertyChanged_ShouldShowWinningMessage()
         {
             // Arrange
-            _viewModel.FinancialPortfolio.Money = 9999.99f; // Just below winning threshold
+            _viewModel.FinancialPortfolio.Money = WINNING_MONEY - LOWEST_CHANGE_IN_MONEY; // Just below winning threshold
 
             // Act
-            _viewModel.FinancialPortfolio.Money = 10000; // Trigger the condition
+            _viewModel.FinancialPortfolio.Money += LOWEST_CHANGE_IN_MONEY; // Trigger the condition
 
             // Assert
-            Assert.True(_viewModel.IsMessageVisible);
-            Assert.Equal("Congratulations! You win! you reached $10000, clicking ok will restart the game", _viewModel.Message);
+            Assert.True(_viewModel.IsMessageOverlayVisible);
+            Assert.Equal($"Congratulations! You win! you reached ${WINNING_MONEY}, clicking ok will restart the game", _viewModel.MessageOverlayText);
         }
 
         [Fact]
         public void FinancialPortfolio_PropertyChanged_ShouldShowLosingMessage()
         {
             // Arrange
-            _viewModel.FinancialPortfolio.Money = 0.01f; // Just above losing threshold
+            _viewModel.FinancialPortfolio.Money = LOSING_MONEY; // Just above losing threshold
 
             // Act
-            _viewModel.FinancialPortfolio.Money = 0; // Trigger the condition
+            _viewModel.FinancialPortfolio.Money -= LOWEST_CHANGE_IN_MONEY; // Trigger the condition
 
             // Assert
-            Assert.True(_viewModel.IsMessageVisible);
-            Assert.Equal("Game Over! You Lose! you have less than $1, you can try again if you wish, clicking ok will restart the game", _viewModel.Message);
+            Assert.True(_viewModel.IsMessageOverlayVisible);
+            Assert.Equal($"Game Over! You Lose! you have less than ${LOSING_MONEY}, you can try again if you wish, clicking ok will restart the game", _viewModel.MessageOverlayText);
         }
         [Fact]
         public void StockPrices_ShouldUpdateAfterOneAndTwoMinutes()
@@ -125,8 +156,11 @@ namespace Tests
             // Assert
             Assert.NotNull(_viewModel.Stocks);
             Assert.NotEmpty(_viewModel.Stocks);
+            Assert.True(!initialStockPrices.Any(p => p < LOWEST_STOCK_PRICE || p > HIGHEST_STOCK_PRICE));
             Assert.NotEqual(initialStockPrices, pricesAfterOneMinute);
+            Assert.True(!pricesAfterOneMinute.Any(p => p < LOWEST_STOCK_PRICE || p > HIGHEST_STOCK_PRICE));
             Assert.NotEqual(initialStockPrices, pricesAfterTwoMinutes);
+            Assert.True(!pricesAfterTwoMinutes.Any(p => p < LOWEST_STOCK_PRICE || p > HIGHEST_STOCK_PRICE));
             Assert.NotEqual(pricesAfterOneMinute, pricesAfterTwoMinutes);
 
             Assert.NotNull(_viewModel.FinancialPortfolio);
@@ -136,9 +170,94 @@ namespace Tests
             Assert.NotEqual(portfolioPricesAfterOneMinute, portfolioPricesAfterTwoMinutes);
         }
 
+        [Theory]
+        [InlineData(MainViewModel.PriceCondition.Above)]
+        [InlineData(MainViewModel.PriceCondition.Below)]
+        [InlineData(MainViewModel.PriceCondition.Equal)]
+        public void BuyStockWithCondition_ShouldBuyTheStockAccordingToCondition(MainViewModel.PriceCondition condition)
+        {
+            // Arrange
+            int priceChangeUponCondition = condition switch
+            {
+                MainViewModel.PriceCondition.Above => -1,
+                MainViewModel.PriceCondition.Below => 1,
+                MainViewModel.PriceCondition.Equal => 0,
+                _ => throw new ArgumentOutOfRangeException(nameof(condition), condition, null)
+            };
+            _viewModel.SelectedPriceCondition = condition;
+            _viewModel.PriceConditionAmount = _viewModel.Stocks[0].Price + priceChangeUponCondition;
+            var qualifiedStock = _viewModel.Stocks
+                .FirstOrDefault(x =>
+                    condition switch
+                    {
+                        MainViewModel.PriceCondition.Above => x.Price > _viewModel.PriceConditionAmount,
+                        MainViewModel.PriceCondition.Below => x.Price < _viewModel.PriceConditionAmount,
+                        MainViewModel.PriceCondition.Equal => x.Price == _viewModel.PriceConditionAmount,
+                        _ => throw new ArgumentOutOfRangeException(nameof(condition), condition, null)
+                    });
+            int qualifiedStockInitialQuantity = qualifiedStock?.Quantity ?? 0;
+
+            // Act
+            _viewModel.BuyStocksWithConditionCommand.Execute(null);
+
+            // Assert
+            Assert.NotNull(qualifiedStock);
+            Assert.True(qualifiedStockInitialQuantity > 0);
+            Assert.True(_viewModel.FinancialPortfolio.StocksPortfolio.Any(x => x.Symbol == qualifiedStock.Symbol));
+            Assert.True(_viewModel.FinancialPortfolio.StocksPortfolio.First(x => x.Symbol == qualifiedStock.Symbol).Quantity > 0);
+            Assert.Equal(qualifiedStockInitialQuantity - 1, qualifiedStock.Quantity);
+            Assert.True(_viewModel.FinancialPortfolio.Money <= STARTING_MONEY - qualifiedStock.Price);
+        }
+
+        [Theory]
+        [InlineData(MainViewModel.PriceCondition.Above)]
+        [InlineData(MainViewModel.PriceCondition.Below)]
+        [InlineData(MainViewModel.PriceCondition.Equal)]
+        public void SellStockWithCondition_ShouldSellTheStockAccordingToCondition(MainViewModel.PriceCondition condition)
+        {
+            // Arrange
+            _viewModel.FinancialPortfolio.StocksPortfolio.Add(new StockViewModel(
+                    new StockModel()
+                    {
+                        Symbol = _viewModel.Stocks[0].Symbol,
+                        Quantity = 1,
+                        Price = _viewModel.Stocks[0].Price
+                    }));
+            int priceChangeUponCondition = condition switch
+            {
+                MainViewModel.PriceCondition.Above => -1,
+                MainViewModel.PriceCondition.Below => 1,
+                MainViewModel.PriceCondition.Equal => 0,
+                _ => throw new ArgumentOutOfRangeException(nameof(condition), condition, null)
+            };
+            _viewModel.SelectedPriceCondition = condition;
+            _viewModel.PriceConditionAmount = _viewModel.FinancialPortfolio.StocksPortfolio[0].Price + priceChangeUponCondition;
+            var qualifiedFromPortfolioStock = _viewModel.FinancialPortfolio.StocksPortfolio
+                .FirstOrDefault(x =>
+                    condition switch
+                    {
+                        MainViewModel.PriceCondition.Above => x.Price > _viewModel.PriceConditionAmount,
+                        MainViewModel.PriceCondition.Below => x.Price < _viewModel.PriceConditionAmount,
+                        MainViewModel.PriceCondition.Equal => x.Price == _viewModel.PriceConditionAmount,
+                        _ => throw new ArgumentOutOfRangeException(nameof(condition), condition, null)
+                    });
+            int qualifiedStockInitialQuantity = qualifiedFromPortfolioStock?.Quantity ?? 0;
+
+            // Act
+            _viewModel.SellStocksWithConditionCommand.Execute(null);
+
+            // Assert
+            Assert.NotNull(qualifiedFromPortfolioStock);
+            Assert.True(qualifiedStockInitialQuantity > 0);
+            Assert.True(_viewModel.Stocks.Any(x => x.Symbol == qualifiedFromPortfolioStock.Symbol));
+            Assert.True(_viewModel.Stocks.First(x => x.Symbol == qualifiedFromPortfolioStock.Symbol).Quantity > 0);
+            Assert.Equal(qualifiedStockInitialQuantity - 1, qualifiedFromPortfolioStock.Quantity);
+            Assert.True(_viewModel.FinancialPortfolio.Money >= qualifiedFromPortfolioStock.Price);
+        }
+
         public void Dispose()
         {
-            if(_viewModel != null)
+            if (_viewModel != null)
             {
                 _viewModel.Dispose();
                 _viewModel = null;

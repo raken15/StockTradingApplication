@@ -5,14 +5,21 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Threading;
 using System.Windows.Input;
+using System.Windows;
 
 namespace StockTradingApplication.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged, IDisposable
     {
         #region Constants
+        private const float STARTING_MONEY = 1000.0f;
+        private const float WINNING_MONEY = 10000.0f;
+        private const float LOSING_MONEY = 1.0f;
+        private const int HIGHEST_STOCK_PRICE = 4000;
+        private const int LOWEST_STOCK_PRICE = 1;
         private const int TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS = 1;  // 1 second
         private const int TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS = 60;  // 1 minute
+
         #endregion
         #region Fields
         private IRepository<StockModel, string> _stockRepository;
@@ -22,12 +29,16 @@ namespace StockTradingApplication.ViewModels
         private DispatcherTimer _timerUpdatePrices;
         private TimeSpan _elapsedTime;
         private DispatcherTimer _elapsedTimeTimer;
-        private string _message;
-        private bool _isMessageVisible;
+        private string _messageOverlayText;
+        private bool _isMessageOverlayVisible;
+        private TimeSpan _remainingTimeBeforeNextPriceUpdate;
+        private PriceCondition _selectedPriceCondition;
+        private float _priceConditionAmount;
+        private ObservableCollection<PriceCondition> _priceConditionOptions;
         #endregion
         #region Properties
         public ObservableCollection<StockViewModel> Stocks { get; set; }
-        
+
         public StockViewModel SelectedStock
         {
             get => _selectedStock;
@@ -36,11 +47,12 @@ namespace StockTradingApplication.ViewModels
                 if (_selectedStock != value)
                 {
                     _selectedStock = value;
-                    BuyStockCommand.RaiseCanExecuteChanged();
+                    ((RelayCommand<object>)BuyStockCommand).RaiseCanExecuteChanged();
                     if (value != null)
                     {
                         SelectedPortfolioStock = null; // Clear SelectedPortfolioStock after SelectedStock is set
                     }
+                    RaisePropertyChanged(nameof(SelectedStock));
                 }
             }
         }
@@ -64,11 +76,12 @@ namespace StockTradingApplication.ViewModels
                 if (_selectedPortfolioStock != value)
                 {
                     _selectedPortfolioStock = value;
-                    SellStockCommand.RaiseCanExecuteChanged();
+                    ((RelayCommand<object>)SellStockCommand).RaiseCanExecuteChanged();
                     if (value != null)
                     {
                         SelectedStock = null; // Clear SelectedStock after SelectedPortfolioStock is set
                     }
+                    RaisePropertyChanged(nameof(SelectedPortfolioStock));
                 }
             }
         }
@@ -84,54 +97,130 @@ namespace StockTradingApplication.ViewModels
                 }
             }
         }
-        public string Message
+        public string MessageOverlayText
         {
-            get { return _message; }
+            get { return _messageOverlayText; }
             set
             {
-                if (_message != value)
+                if (_messageOverlayText != value)
                 {
-                    _message = value;
-                    RaisePropertyChanged(nameof(Message));
+                    _messageOverlayText = value;
+                    RaisePropertyChanged(nameof(MessageOverlayText));
                 }
             }
         }
 
-        public bool IsMessageVisible
+        public bool IsMessageOverlayVisible
         {
-            get { return _isMessageVisible; }
+            get { return _isMessageOverlayVisible; }
             set
             {
-                if (_isMessageVisible != value)
+                if (_isMessageOverlayVisible != value)
                 {
-                    _isMessageVisible = value;
-                    RaisePropertyChanged(nameof(IsMessageVisible));
+                    _isMessageOverlayVisible = value;
+                    RaisePropertyChanged(nameof(IsMessageOverlayVisible));
                 }
             }
         }
+        public TimeSpan RemainingTimeBeforeNextPriceUpdate
+        {
+            get => _remainingTimeBeforeNextPriceUpdate;
+            set
+            {
+                if (_remainingTimeBeforeNextPriceUpdate != value)
+                {
+                    if (_remainingTimeBeforeNextPriceUpdate == TimeSpan.Zero)
+                    {
+                        _remainingTimeBeforeNextPriceUpdate = TimeSpan.FromSeconds(TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS);
+                    }
+                    else
+                    {
+                        _remainingTimeBeforeNextPriceUpdate = value;
+                    }
+                    RaisePropertyChanged(nameof(RemainingTimeBeforeNextPriceUpdate));
+                }
+            }
+        }
+
+        public PriceCondition SelectedPriceCondition
+        {
+            get => _selectedPriceCondition;
+            set
+            {
+                _selectedPriceCondition = value;
+                RaisePropertyChanged(nameof(SelectedPriceCondition));
+                ((RelayCommand<object>)BuyStocksWithConditionCommand).RaiseCanExecuteChanged();
+                ((RelayCommand<object>)SellStocksWithConditionCommand).RaiseCanExecuteChanged();
+            }
+        }
+        public float PriceConditionAmount
+        {
+            get => _priceConditionAmount;
+            set
+            {
+                if (_priceConditionAmount != value)
+                {
+                    _priceConditionAmount = value;
+                    RaisePropertyChanged(nameof(PriceConditionAmount));
+                    ((RelayCommand<object>)BuyStocksWithConditionCommand).RaiseCanExecuteChanged();
+                    ((RelayCommand<object>)SellStocksWithConditionCommand).RaiseCanExecuteChanged();
+                }
+            }
+        }
+        public ObservableCollection<PriceCondition> PriceConditionOptions
+        {
+            get => _priceConditionOptions;
+            set
+            {
+                _priceConditionOptions = value;
+                RaisePropertyChanged(nameof(PriceConditionOptions));
+            }
+        }
+
         #endregion
         #region Commands
-        public RelayCommand BuyStockCommand { get; set; }
-        public RelayCommand SellStockCommand { get; set; }
-        public RelayCommand RestartCommand { get; set; }
-        public RelayCommand CloseMessageCommand { get; set; }
+        public ICommand BuyStockCommand { get; private set; }
+        public ICommand SellStockCommand { get; private set; }
+        public ICommand RestartCommand { get; private set; }
+        public ICommand CloseMessageOverlayCommand { get; private set; }
+        public ICommand BuyStocksWithConditionCommand { get; private set; }
+        public ICommand SellStocksWithConditionCommand { get; private set; }
+        #endregion
+        #region Enums
+        public enum PriceCondition
+        {
+            Above,
+            Below,
+            Equal
+        }
+        public enum TradeStockOperation
+        {
+            BuyStock,
+            SellStock
+        }
         #endregion
         #region Constructor and initialization
         public MainViewModel()
         {
-            InitializeStockRepository();
-            InitializeFinancialPortfolio();
-            InitializeCommands();
-            InitializeTimers();
-        }
-        private void InitializeStockRepository()
-        {
             _stockRepository = new StockModelRepository();
-            InitializeStocks();
+            InitializeCommands();
+            PopulatePriceConditions();
+            InitializationOnRestart();
         }
+        private void InitializationOnRestart()
+        {
+            InitializeStocks();
+            InitializeFinancialPortfolio();
+            InitializeTimers();
+            SimulateTick(); // make the initial stocks to start with random prices
+        }
+        // private void InitializeStockRepository()
+        // {
+        //     InitializeStocks();
+        // }
         private void InitializeStocks()
         {
-            if(Stocks == null)
+            if (Stocks == null)
             {
                 Stocks = new ObservableCollection<StockViewModel>();
             }
@@ -139,19 +228,19 @@ namespace StockTradingApplication.ViewModels
             {
                 Stocks.Clear();
             }
-            var stocks = _stockRepository.GetAll();
-            foreach (var stock in stocks)
+            var stocksFromRepository = _stockRepository.GetAll();
+            foreach (var stock in stocksFromRepository)
             {
                 Stocks.Add(new StockViewModel(stock));
             }
         }
         private void InitializeFinancialPortfolio()
         {
-            if(FinancialPortfolio == null)
+            if (FinancialPortfolio == null)
             {
                 var financialPortfolioModel = new FinancialPortfolioModel
                 {
-                    Money = 1000.0f,
+                    Money = STARTING_MONEY,
                     Stocks = new List<StockModel>()
                 };
                 FinancialPortfolio = new FinancialPortfolioViewModel(financialPortfolioModel);
@@ -160,20 +249,41 @@ namespace StockTradingApplication.ViewModels
             else
             {
                 FinancialPortfolio.StocksPortfolio.Clear();
-                FinancialPortfolio.Money = 1000.0f;
+                FinancialPortfolio.Money = STARTING_MONEY;
             }
         }
         private void InitializeCommands()
         {
-            BuyStockCommand = new RelayCommand((param) => BuyStock(), (param) => CanBuyStock());
-            SellStockCommand = new RelayCommand((param) => SellStock(), (param) => CanSellStock());
-            RestartCommand = new RelayCommand(Restart);
-            CloseMessageCommand = new RelayCommand(CloseMessage);
+            if (BuyStockCommand == null)
+            {
+                BuyStockCommand = new RelayCommand<object>(_ => TradeStock(TradeStockOperation.BuyStock), _ => CanBuyOrSellStocks(TradeStockOperation.BuyStock));
+            }
+            if (SellStockCommand == null)
+            {
+                SellStockCommand = new RelayCommand<object>(_ => TradeStock(TradeStockOperation.SellStock), _ => CanBuyOrSellStocks(TradeStockOperation.SellStock));
+            }
+            if (RestartCommand == null)
+            {
+                RestartCommand = new RelayCommand<object>(_ => Restart());
+            }
+            if (CloseMessageOverlayCommand == null)
+            {
+                CloseMessageOverlayCommand = new RelayCommand<object>(_ => CloseMessageOverlay());
+            }
+            if (BuyStocksWithConditionCommand == null)
+            {
+                BuyStocksWithConditionCommand = new RelayCommand<object>(_ => BuyOrSellAllStocksByPriceCondition(TradeStockOperation.BuyStock), _ => CanBuyOrSellStocksWithCondition(TradeStockOperation.BuyStock));
+            }
+            if (SellStocksWithConditionCommand == null)
+            {
+                SellStocksWithConditionCommand = new RelayCommand<object>(_ => BuyOrSellAllStocksByPriceCondition(TradeStockOperation.SellStock), _ => CanBuyOrSellStocksWithCondition(TradeStockOperation.SellStock));
+            }
         }
         private void InitializeTimers()
         {
             ElapsedTime = default(TimeSpan);
-            if(_timerUpdatePrices != null && _elapsedTimeTimer != null)
+            RemainingTimeBeforeNextPriceUpdate = TimeSpan.FromSeconds(TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS);
+            if (_timerUpdatePrices != null && _elapsedTimeTimer != null)
             {
                 _timerUpdatePrices.Start();
                 _elapsedTimeTimer.Start();
@@ -181,70 +291,94 @@ namespace StockTradingApplication.ViewModels
             else
             {
                 _timerUpdatePrices = new DispatcherTimer
-                 { Interval = TimeSpan.FromSeconds(TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS) };
+                { Interval = TimeSpan.FromSeconds(TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS) };
                 _timerUpdatePrices.Tick += UpdateStockPrices;
                 _timerUpdatePrices.Start();
                 _elapsedTimeTimer = new DispatcherTimer
-                 { Interval = TimeSpan.FromSeconds(TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS) };
+                { Interval = TimeSpan.FromSeconds(TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS) };
                 _elapsedTimeTimer.Tick += (sender, args) =>
                 {
                     ElapsedTime = ElapsedTime.Add(TimeSpan.FromSeconds(TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS));
+                    RemainingTimeBeforeNextPriceUpdate = TimeSpan.FromSeconds(TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS - ElapsedTime.Seconds);
                 };
                 _elapsedTimeTimer.Start();
             }
         }
+        private void PopulatePriceConditions()
+        {
+            if (PriceConditionOptions == null)
+            {
+                PriceConditionOptions = new ObservableCollection<PriceCondition>();
+                foreach (var condition in Enum.GetValues(typeof(PriceCondition)).Cast<PriceCondition>())
+                {
+                    PriceConditionOptions.Add(condition);
+                }
+            }
+        }
         #endregion
         #region Methods
-        private void BuyStock()
+        private void TradeStock(TradeStockOperation tradeStockOperation)
         {
-            if (SelectedStock != null)
+            if (tradeStockOperation == TradeStockOperation.BuyStock && SelectedStock != null)
             {
                 // Simulated stock buying logic
                 SelectedStock.Quantity--;
-
-                if(FinancialPortfolio.StocksPortfolio.Any(x => x.Symbol == SelectedStock.Symbol))
+                UpdateFinancialPortfolioAfterBuyOrSell(SelectedStock, tradeStockOperation);
+                ((RelayCommand<object>)BuyStockCommand).RaiseCanExecuteChanged();
+            }
+            else if (tradeStockOperation == TradeStockOperation.SellStock && SelectedPortfolioStock != null)
+            {
+                // Simulated stock selling logic
+                SelectedPortfolioStock.Quantity--;
+                UpdateFinancialPortfolioAfterBuyOrSell(SelectedPortfolioStock, tradeStockOperation);
+                ((RelayCommand<object>)SellStockCommand).RaiseCanExecuteChanged();
+            }
+        }
+        private void UpdateFinancialPortfolioAfterBuyOrSell(StockViewModel stockTraded, TradeStockOperation operation)
+        {
+            if (operation == TradeStockOperation.BuyStock)
+            {
+                FinancialPortfolio.Money -= stockTraded.Price;
+                if (FinancialPortfolio.StocksPortfolio.Any(x => x.Symbol == stockTraded.Symbol))
                 {
-                    FinancialPortfolio.StocksPortfolio.First(x => x.Symbol == SelectedStock.Symbol).Quantity++;
+                    FinancialPortfolio.StocksPortfolio.First(x => x.Symbol == stockTraded.Symbol).Quantity++;
                 }
                 else
                 {
                     FinancialPortfolio.StocksPortfolio.Add(new StockViewModel(
-                    new StockModel() { Symbol = SelectedStock.Symbol,
-                    Quantity = 1, Price = SelectedStock.Price }));
+                    new StockModel()
+                    {
+                        Symbol = stockTraded.Symbol,
+                        Quantity = 1,
+                        Price = stockTraded.Price
+                    }));
                 }
-                FinancialPortfolio.Money -= SelectedStock.Price;
-
-                RaisePropertyChanged(nameof(Stocks));
-                BuyStockCommand.RaiseCanExecuteChanged();
             }
-        }
-        private void SellStock()
-        {
-            if (SelectedPortfolioStock != null)
+            else if (operation == TradeStockOperation.SellStock)
             {
-                // Simulated stock selling logic
-                SelectedPortfolioStock.Quantity--;
-                FinancialPortfolio.Money += SelectedPortfolioStock.Price;
-                if(Stocks.Any(x => x.Symbol == SelectedPortfolioStock.Symbol))
+                FinancialPortfolio.Money += stockTraded.Price;
+                if (Stocks.Any(x => x.Symbol == stockTraded.Symbol))
                 {
-                    Stocks.First(x => x.Symbol == SelectedPortfolioStock.Symbol).Quantity++;
+                    Stocks.First(x => x.Symbol == stockTraded.Symbol).Quantity++;
                 }
-                //RaisePropertyChanged(nameof(Stocks));
-                SellStockCommand.RaiseCanExecuteChanged();
             }
         }
-        private bool CanBuyStock()
+        private bool CanBuyOrSellStocks(TradeStockOperation tradeStockOperation)
         {
-            return SelectedStock != null && SelectedStock.Quantity > 0; // Can only buy if a stock is selected and has quantity
+            if (tradeStockOperation == TradeStockOperation.BuyStock)
+            {
+                return SelectedStock != null && SelectedStock.Quantity > 0;
+            }
+            else if (tradeStockOperation == TradeStockOperation.SellStock)
+            {
+                return SelectedPortfolioStock != null && SelectedPortfolioStock.Quantity > 0;
+            }
+            return false;
         }
-        private bool CanSellStock()
+        private void ShowMessageOverlay(string message)
         {
-            return SelectedPortfolioStock != null && SelectedPortfolioStock.Quantity > 0; // Can only buy if a stock is selected and has quantity
-        }
-        private void ShowMessage(string message)
-        {
-            Message = message;
-            IsMessageVisible = true;
+            MessageOverlayText = message;
+            IsMessageOverlayVisible = true;
         }
         private void StopTimers()
         {
@@ -259,7 +393,7 @@ namespace StockTradingApplication.ViewModels
             var random = new Random();
             foreach (var stock in Stocks)
             {
-                var newPrice = random.Next(1,4001) + random.Next(100) / 100.0f;
+                var newPrice = random.Next(LOWEST_STOCK_PRICE, HIGHEST_STOCK_PRICE + 1) + random.Next(100) / 100.0f;
                 stock.Price = newPrice;
 
                 var portfolioStock = FinancialPortfolio.StocksPortfolio.FirstOrDefault(ps => ps.Symbol == stock.Symbol);
@@ -270,6 +404,8 @@ namespace StockTradingApplication.ViewModels
             }
             RaisePropertyChanged(nameof(Stocks));
             RaisePropertyChanged(nameof(FinancialPortfolio));
+            ((RelayCommand<object>)BuyStocksWithConditionCommand).RaiseCanExecuteChanged();
+            ((RelayCommand<object>)SellStocksWithConditionCommand).RaiseCanExecuteChanged();
         }
         #endregion
         #region PropertyChanged event handler
@@ -284,32 +420,83 @@ namespace StockTradingApplication.ViewModels
         {
             if (e.PropertyName == nameof(FinancialPortfolioViewModel.Money))
             {
-                if (FinancialPortfolio.Money >= 10000)
+                if (FinancialPortfolio.Money >= WINNING_MONEY)
                 {
                     StopTimers();
-                    ShowMessage("Congratulations! You win! you reached $10000, clicking ok will restart the game");
+                    ShowMessageOverlay($"Congratulations! You win! you reached ${WINNING_MONEY}, clicking ok will restart the game");
                 }
-                else if (FinancialPortfolio.Money < 1)
+                else if (FinancialPortfolio.Money < LOSING_MONEY)
                 {
                     StopTimers();
-                    ShowMessage("Game Over! You Lose! you have less than $1, you can try again if you wish, clicking ok will restart the game");
+                    ShowMessageOverlay($"Game Over! You Lose! you have less than ${LOSING_MONEY}, you can try again if you wish, clicking ok will restart the game");
                 }
             }
         }
         #endregion
         #region Restart event handler
-        private void Restart(object obj)
+        private void Restart()
         {
-            InitializeFinancialPortfolio();
-            InitializeStockRepository();
-            InitializeTimers();
+            InitializationOnRestart();
         }
         #endregion
         #region CloseMessage event handler
-        private void CloseMessage(object obj)
+        private void CloseMessageOverlay()
         {
-            Restart(null);
-            IsMessageVisible = false;
+            Restart();
+            IsMessageOverlayVisible = false;
+        }
+        #endregion
+        #region BuyStocksWithCondition event handler
+        private void BuyOrSellAllStocksByPriceCondition(TradeStockOperation tradeStockOperation)
+        {
+            Predicate<StockViewModel> priceConditionPredicate = x => x.Quantity > 0 && SelectedPriceCondition switch
+            {
+                PriceCondition.Above => x.Price > PriceConditionAmount,
+                PriceCondition.Below => x.Price < PriceConditionAmount,
+                PriceCondition.Equal => x.Price == PriceConditionAmount,
+                _ => throw new ArgumentOutOfRangeException(nameof(SelectedPriceCondition), SelectedPriceCondition, null)
+            };
+            List<StockViewModel> stocksToTrade;
+            if (tradeStockOperation == TradeStockOperation.BuyStock)
+            {
+                stocksToTrade = Stocks.Where(x => priceConditionPredicate(x)).ToList();
+            }
+            else
+            {
+                stocksToTrade = FinancialPortfolio.StocksPortfolio.Where(x => priceConditionPredicate(x)).ToList();
+            }
+            if (stocksToTrade.Any())
+            {
+                stocksToTrade.ForEach(x =>
+                {
+                    x.Quantity--;
+                    UpdateFinancialPortfolioAfterBuyOrSell(x, tradeStockOperation);
+                });
+                ((RelayCommand<object>)BuyStocksWithConditionCommand).RaiseCanExecuteChanged();
+                ((RelayCommand<object>)SellStocksWithConditionCommand).RaiseCanExecuteChanged();
+            }
+        }
+        private bool CanBuyOrSellStocksWithCondition(TradeStockOperation tradeStockOperation)
+        {
+            if (PriceConditionAmount > 0)
+            {
+                Predicate<StockViewModel> priceConditionPredicate = x => x.Quantity > 0 && SelectedPriceCondition switch
+                {
+                    PriceCondition.Above => x.Price > PriceConditionAmount,
+                    PriceCondition.Below => x.Price < PriceConditionAmount,
+                    PriceCondition.Equal => x.Price == PriceConditionAmount,
+                    _ => throw new ArgumentOutOfRangeException(nameof(SelectedPriceCondition), SelectedPriceCondition, null)
+                };
+                if(tradeStockOperation == TradeStockOperation.BuyStock)
+                {
+                    return Stocks.Any(stock => priceConditionPredicate(stock));
+                }
+                else
+                {
+                    return FinancialPortfolio.StocksPortfolio.Any(stock => priceConditionPredicate(stock));
+                }
+            }
+            return  false;
         }
         #endregion
         #endregion
@@ -321,7 +508,7 @@ namespace StockTradingApplication.ViewModels
             UpdateStockPrices(this, EventArgs.Empty);
         }
         #endregion
-    
+
         #region Dispose and Cleanup
 
         public void Dispose()
@@ -339,7 +526,7 @@ namespace StockTradingApplication.ViewModels
                 _elapsedTimeTimer = null;
             }
 
-            if(Stocks != null)
+            if (Stocks != null)
             {
                 Stocks.Clear();
             }
@@ -350,10 +537,7 @@ namespace StockTradingApplication.ViewModels
                 FinancialPortfolio.PropertyChanged -= FinancialPortfolio_PropertyChanged;
 
             }
-            if (_stockRepository != null)
-            {
-                _stockRepository.RemoveAll();
-            }
+            _stockRepository?.Clear();
         }
         #endregion
     }
