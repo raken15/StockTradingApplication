@@ -100,6 +100,11 @@ The application follows the **MVVM architecture**. This design pattern enforces 
   -Liskov Substitution: ViewModels and Models can be replaced by their base types without affecting the functionality.
   -Interface Segregation: The repository interfaces (IRepository) only expose necessary methods, keeping them focused.
   -Dependency Inversion: Dependency injection is used to decouple high-level modules from low-level modules, making the code more testable and flexible.
+- **CRUD** principle: project implements the CRUD principle by:
+  - Creating, Reading, Updating, and Deleting stock and portfolio data
+    -where users can create and update trades (buy/sell), read stock prices and portfolio information, and remove stocks from the portfolio when sold.
+- **Testing**: unit testing is implemented using xunit
+- **Initial settings**: initial settings can be changed by user using a text file that is read by the code
 
 ## Flow and Structure
 
@@ -129,9 +134,13 @@ StockTradingApplication/
 ## Application Flow
 
 - **Initialization**: The app reads `InitialSettings.txt` for stock limits and portfolio values.
+  - Initial Stock values are provided by the `StockModelRepository.cs` default value, and are changed to be with random prices at the start of the run.
+  - Timers are also initialized.
 - **Real-time Updates**: Stock prices are periodically updated by the `MainViewModel`, which triggers UI updates.
 - **User Interaction**: The user can buy or sell stocks, with conditions applied to the price and quantity.
-- **Portfolio Management**: The portfolio is updated based on successful trades, and the `FinancialPortfolioViewModel` handles this data binding.
+- **Data and display Management**:
+  - **Portfolio Management**: The portfolio is updated based on successful trades, and the `FinancialPortfolioViewModel` handles this data binding.
+  - **Stocks Management**: Stocks for sale list is updated based on successful trades, and the `StockViewModel` handles this data binding
 - **Victory/Loss Conditions**: The game logic is based on financial thresholds defined in the settings.
 
 ## Commands and Controls
