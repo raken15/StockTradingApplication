@@ -9,18 +9,48 @@ The solution also includes a comprehensive unit testing project to ensure the ro
 ## Table of Contents
 
 - [Overview](#overview)
+- [Installation](#installation)
+- [Usage](#usage)
 - [Features](#features)
 - [Architecture](#architecture)
   - [MVVM Pattern](#mvvm-pattern)
   - [Key Components](#key-components)
   - [Design and Code Improvements](#design-and-code-improvements)
 - [Flow and Structure](#flow-and-structure)
-- [Installation](#installation)
-- [Usage](#usage)
 - [Logging](#logging)
 - [Tests](#tests)
 - [Contributing](#contributing)
 - [License](#license)
+
+## Installation
+
+### Prerequisites
+
+- Visual Studio Code, or any other text editor or IDE with C# compiler
+- .NET 8.0 SDK
+- Windows operating system
+
+### Steps
+
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/raken15/StockTradingApplication.git
+    ```
+
+2. Navigate to the solution directory:
+    ```bash
+    cd StockTradingApplication
+    ```
+
+3. Open the solution in Visual Studio Code, or other text editor or IDE with C# compiler
+
+4. Build the solution to restore all dependencies.
+
+## Usage
+
+1. Build the solution.
+2. Run the application using Visual Studio Code or from the executable in the bin folder.
+3. Use the UI to manage stock trading activities. Prices update automatically, and you can monitor your financial portfolio's performance.
 
 ## Features
 
@@ -31,6 +61,7 @@ The solution also includes a comprehensive unit testing project to ensure the ro
 - **Robust unit tests** to ensure code reliability.
 - **Custom commands** using `RelayCommand` for efficient interaction between ViewModels and the UI.
 - **Logging** with `SimpleLogger` for tracking application events and debugging.
+- **Initial settings** like starting money is read from `InitialSettings.txt` and can be changed to have different initial settings.
 
 ## Architecture
 
@@ -49,6 +80,7 @@ The application follows the **MVVM architecture**. This design pattern enforces 
 - **FinancialPortfolioViewModel**: Manages the user's portfolio, handling stock buy/sell operations and updating the UI accordingly.
 - **RelayCommand**: Implements command logic, binding actions (such as button clicks) to methods in the ViewModel.
 - **SimpleLogger**: Provides logging functionality to record important events, errors, and messages during the application's runtime.
+- **InitialSettings**: Provides the initial settings for the run, for example: Time between price updates or starting money.
 
 ### Design and Code Improvements
 
@@ -57,6 +89,17 @@ The application follows the **MVVM architecture**. This design pattern enforces 
 - **Price update simulation**: The stock prices are updated in real-time with a timer-based event handler for simulating stock market fluctuations.
 - **Logging with `SimpleLogger`**: Centralized logging captures important events (e.g., stock price updates, successful trades) and errors for debugging and monitoring.
 - **Dependency Injection (DI)**: Ensures that ViewModels and services are easily testable and interchangeable, facilitating future modifications.
+- **OOP Principles**: implements OOP principles by using
+  -Encapsulation (e.g., properties and methods managing internal states like in StockViewModel)
+  -Abstraction (e.g., IRepository interface abstracts data access)
+  -Inheritance (e.g., ViewModelBase for shared logic in ViewModels)
+  -Polymorphism (e.g., commands and event handlers using polymorphic behavior for user interactions).
+- **SOLID Principles**: project implements the SOLID principles by ensuring:
+  -Single Responsibility: Each class (e.g., StockViewModel, FinancialPortfolioViewModel) handles a single responsibility.
+  -Open/Closed: Classes like StockModelRepository are open for extension but closed for modification via interfaces (IRepository).
+  -Liskov Substitution: ViewModels and Models can be replaced by their base types without affecting the functionality.
+  -Interface Segregation: The repository interfaces (IRepository) only expose necessary methods, keeping them focused.
+  -Dependency Inversion: Dependency injection is used to decouple high-level modules from low-level modules, making the code more testable and flexible.
 
 ## Flow and Structure
 
@@ -83,7 +126,7 @@ StockTradingApplication/
 └── Tests/
     └── MainWindowViewModelTests.cs    # Unit tests for validating MainViewModel behavior.
 ```
-# Application Flow
+## Application Flow
 
 - **Initialization**: The app reads `InitialSettings.txt` for stock limits and portfolio values.
 - **Real-time Updates**: Stock prices are periodically updated by the `MainViewModel`, which triggers UI updates.
@@ -91,63 +134,37 @@ StockTradingApplication/
 - **Portfolio Management**: The portfolio is updated based on successful trades, and the `FinancialPortfolioViewModel` handles this data binding.
 - **Victory/Loss Conditions**: The game logic is based on financial thresholds defined in the settings.
 
-# Installation
-
-## Prerequisites
-
-- Visual Studio
-- .NET 8.0 SDK
-
-## Steps
-
-1. Clone the repository:
-    ```bash
-    git clone https://github.com/YourUsername/StockTradingApplication.git
-    ```
-
-2. Navigate to the project directory:
-    ```bash
-    cd StockTradingApplication
-    ```
-
-3. Open the solution in Visual Studio.
-
-4. Build the solution to restore all dependencies.
-
-# Usage
-
-1. Build the solution.
-2. Run the application using Visual Studio or from the executable in the bin folder.
-3. Use the UI to manage stock trading activities. Prices update automatically, and you can monitor your financial portfolio's performance.
-
-# Commands and Controls
+## Commands and Controls
 
 - **Buy Stocks**: Purchase stocks from the market based on price conditions.
 - **Sell Stocks**: Sell owned stocks, updating the portfolio.
 - **Real-time Updates**: Observe live changes in stock prices.
 - **Win/Loss Conditions**: The game shows an overlay when specific thresholds are reached, either winning or losing the game.
 
-# Logging
+## Logging
 
 The application uses a custom logging mechanism (`SimpleLogger.cs`) to track important events:
 
 - Logs stock price updates, buy/sell operations, and exceptions.
 - Stores logs in a file for later debugging or real-time monitoring.
 
-To enable logging, configure the log path and desired log levels in the logger settings.
+The logs will appear in [path-to-project]\bin\Debug\net8.0-windows after building and running the project.
 
-# Tests
+## Tests
 
 The `Tests` folder contains unit tests to ensure the functionality of the ViewModels:
 
-- **MainViewModelTests**: Verifies the core logic for managing stock data and user interaction.
-- **FinancialPortfolioViewModelTests**: Ensures the portfolio updates correctly after trades.
+- **MainViewModelTests**:
+  - Verifies the core logic for managing stock data and user interaction.
+  - Ensures the portfolio and the stocks updates correctly after trades.
+  - Checks that the win/loss conditions are triggering correctly
+  - Make sure that the update to the stock prices with periodic randomization happens correctly
 
-## To run tests:
+### To run tests:
 
 1. Navigate to the Tests directory:
     ```bash
-    cd Tests
+    cd [path-to-solution]\Tests
     ```
 
 2. Run the tests using the .NET CLI:
@@ -157,7 +174,7 @@ The `Tests` folder contains unit tests to ensure the functionality of the ViewMo
 
 3. Review the results to ensure all tests pass.
 
-# Contributing
+## Contributing
 
 Contributions are welcome! To contribute:
 
@@ -172,6 +189,6 @@ Contributions are welcome! To contribute:
 
 Ensure all changes are tested before submitting a PR.
 
-# License
+## License
 
 This project is licensed under the MIT License. See the LICENSE file for details.
