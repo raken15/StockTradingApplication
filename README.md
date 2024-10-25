@@ -67,7 +67,7 @@ The solution also includes a comprehensive unit testing project to ensure the ro
 
 ## Features
 
-- **Real-Time Stock Price Updates**: with periodic randomization for simulation.
+- **Real-Time Stock Price Updates**: Provides simulated real-time updates with periodic randomization for a more dynamic experience.
 - **Stock Trading Functionality**: Enables the buying and selling of stocks based on specific price and quantity criteria.
 - **Portfolio Management System**: Offers tools to monitor assets, track portfolio value, and evaluate overall performance.
 - **MVVM Architecture**: Implements the Model-View-ViewModel (MVVM) design pattern to enhance maintainability and testability of the application.
