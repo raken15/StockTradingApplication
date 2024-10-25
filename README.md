@@ -13,11 +13,14 @@ The solution also includes a comprehensive unit testing project to ensure the ro
 
 - [Overview](#overview)
 - [Demo Showcase](#demo-showcase)
-- [Installation](#installation)
+- [Installation and Usage with Release Binary File](#installation-and-usage-with-release-binary-file)
   - [Prerequisites](#prerequisites)
-  - [Steps](#steps)
-- [Usage](#usage)
-  - [Notes on Usage](#notes-on-usage)
+  - [Installation Steps](#installation-steps)
+- [Building and Running the Project](#building-and-running-the-project)
+  - [Build and Runtime Prerequisites](#build-and-runtime-prerequisites)
+  - [Building the Project](#building-the-project)
+  - [Executing the Project Post-Build](#executing-the-project-post-build)
+  - [Considerations for Running the Project Post-Build](#considerations-for-running-the-project-post-build)
 - [Features](#features)
 - [Architecture](#architecture)
   - [MVVM Pattern](#mvvm-pattern)
@@ -34,44 +37,64 @@ The solution also includes a comprehensive unit testing project to ensure the ro
   - [Contributing](#contributing)
   - [License](#license)
 
-## Installation
+## Installation and Usage with Release Binary File
 
 ### Prerequisites
 
-- Visual Studio Code, or any other text editor or IDE with C# compiler
+- Windows operating system
+
+### Installation Steps
+
+1. Navigate to the **Releases** section of this project.
+   - The latest release, **v1.0.0**, can be found [here](https://github.com/username/repo/releases/tag/v1.0.0).
+2. Download the `StockTradingApplication_v1.0.0.zip` file.
+3. Extract the contents of the zip file.
+4. **(Optional)** To modify default settings (e.g., the starting money is set to $1000), update the `Assets/InitialSettings.txt` file:
+   - The settings must adhere to the following format:
+     ```
+     "Key string": "Value as string"
+     ```
+   - Any deviations from this format may result in errors.
+5. Run the `StockTradingApplication.exe` file.
+6. Use the user interface (UI) to manage stock trading activities. Prices will update automatically, allowing you to monitor the performance of your financial portfolio.
+7. The objective is to reach a winning amount of $10,000 (default) while avoiding a loss of $1 (default).
+
+## Building and Running the Project
+
+### Build and Runtime Prerequisites
+
+- Visual Studio Code (or any text editor/IDE with C# support)
 - .NET 8.0 SDK
 - Windows operating system
 
-### Steps
+### Building the Project
 
 1. Clone the repository:
     ```bash
     git clone https://github.com/raken15/StockTradingApplication.git
     ```
-    1. Another option is to click on the green "<> code" button in the the project Github page, download as zip, unzip it
-
+   - Alternatively, you can click the green **Code** button on the project’s GitHub page to download as a zip file and extract it.
+   
 2. Navigate to the solution directory:
     ```bash
     cd StockTradingApplication
     ```
-    1. Or go to the solution folder using the file explorer
+   - You may also use your file explorer to navigate to the solution folder.
 
-3. Open the solution(.sln file) in Visual Studio Code, or another text editor or IDE, with C# compiler
+3. Open the solution (`.sln` file) in Visual Studio Code or another compatible text editor/IDE.
 
 4. Build the solution to restore all dependencies.
 
-## Usage
+### Executing the Project Post-Build
 
 1. Build the solution.
-2. Run the application using Visual Studio Code or from the executable(.exe file) in the bin folder.
-3. Use the UI to manage stock trading activities. Prices update automatically, and you can monitor your financial portfolio's performance.
-4. The goal is to reach Winning money value($10000 by default), while avoiding going under losing money value($1 by default)
+2. Execute the application either from Visual Studio Code or by running the executable (`.exe` file) located in the `bin` folder.
   
-### Notes on Usage
-1. The executable should be located in this path after the build: [path-to-directory-containing-the-solution]\StockTradingApplication\bin\Debug\net8.0-windows\
-2. Before running, initial settings like starting money($1000 by default) and others can updated using the InitialSettings.txt file
-  1. The InitialSettings.txt file should be located in [path-to-directory-containing-the-solution]\StockTradingApplication\bin\Debug\net8.0-windows\Assets after the build
-  2. The settings must follow the specific format like in the following example: "Key string" : "Value as string" , any other format will result in error.
+### Considerations for Running the Project Post-Build
+- The executable can be found at the following path after building: [path-to-directory-containing-the-solution]\StockTradingApplication\bin\Debug\net8.0-windows\
+- Before running the application, initial settings, such as the starting money (default is $1,000), can be updated using the `InitialSettings.txt` file:
+- The `InitialSettings.txt` file will be located in:
+  - The InitialSettings.txt file should be located in [path-to-directory-containing-the-solution]\StockTradingApplication\bin\Debug\net8.0-windows\Assets after the build.
 
 ## Features
 
