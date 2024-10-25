@@ -4,11 +4,15 @@
 
 **StockTradingApplication** is a fully-featured stock trading platform built using C# and WPF, leveraging the **MVVM (Model-View-ViewModel)** pattern to ensure separation of concerns and maintainability. It allows users to buy and sell stocks, manage their financial portfolio, and track real-time stock price updates. 
 
-The solution also includes a comprehensive unit testing project to ensure the robustness and reliability of the application’s core functionalities. 
+The solution also includes a comprehensive unit testing project to ensure the robustness and reliability of the application’s core functionalities.
+
+## Demo Showcase
+![](DemoGIF/GIFDemoStockTradingApplication.gif)
 
 ## Table of Contents
 
 - [Overview](#overview)
+- [Demo Showcase](#demo-showcase)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Features](#features)
