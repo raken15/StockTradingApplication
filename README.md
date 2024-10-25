@@ -23,6 +23,7 @@ The solution also includes a comprehensive unit testing project to ensure the ro
 - [Flow and Structure](#flow-and-structure)
 - [Logging](#logging)
 - [Tests](#tests)
+- [Changelog](#changelog)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -214,6 +215,9 @@ The `Tests` folder contains unit tests to ensure the functionality of the ViewMo
    1. Later it should be even further improved to use a Database instead for the source
 6. Add more functionalities regarding stocks like lower number of stocks affect price or higher number of stocks affecting price
 7. Make the Application for multiple users at the same time, like one user trading is affecting another, and they both see the same values and same stocks in real-time
+
+## Changelog
+For a detailed list of changes, please see the [CHANGELOG.md](CHANGELOG.md).
 
 ## Contributing
 
