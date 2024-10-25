@@ -14,17 +14,25 @@ The solution also includes a comprehensive unit testing project to ensure the ro
 - [Overview](#overview)
 - [Demo Showcase](#demo-showcase)
 - [Installation](#installation)
+  - [Prerequisites](#prerequisites)
+  - [Steps](#steps)
 - [Usage](#usage)
+  - [Notes on Usage](#notes-on-usage)
 - [Features](#features)
 - [Architecture](#architecture)
   - [MVVM Pattern](#mvvm-pattern)
   - [Key Components](#key-components)
   - [Design and Code Improvements](#design-and-code-improvements)
 - [Flow and Structure](#flow-and-structure)
-- [Logging](#logging)
+  - [Application Flow](#application-flow)
+  - [Commands and Controls](#commands-and-controls)
+  - [Logging](#logging)
 - [Tests](#tests)
-- [Contributing](#contributing)
-- [License](#license)
+- [Ideas for improvements in the future](#ideas-for-improvements-in-the-future)
+- [Additional Documentation](#additional-documentation)
+  - [Changelog](#changelog)
+  - [Contributing](#contributing)
+  - [License](#license)
 
 ## Installation
 
@@ -67,14 +75,18 @@ The solution also includes a comprehensive unit testing project to ensure the ro
 
 ## Features
 
-- **Real-time stock price updates** with periodic randomization for simulation.
-- **Buy and sell stocks** with price and quantity conditions.
-- **Financial portfolio management**: Track assets and evaluate portfolio performance.
-- Implements the **MVVM pattern** for maintainability and testability.
-- **Robust unit tests** to ensure code reliability.
-- **Custom commands** using `RelayCommand` for efficient interaction between ViewModels and the UI.
-- **Logging** with `SimpleLogger` for tracking application events and debugging.
-- **Initial settings** like starting money is read from `InitialSettings.txt` and can be changed to have different initial settings.
+- **Real-Time Stock Price Updates**: Provides simulated real-time updates with periodic randomization for a more dynamic experience.
+- **Stock Trading Functionality**: Enables the buying and selling of stocks based on specific price and quantity criteria.
+- **Portfolio Management System**: Offers tools to monitor assets, track portfolio value, and evaluate overall performance.
+- **MVVM Architecture**: Implements the Model-View-ViewModel (MVVM) design pattern to enhance maintainability and testability of the application.
+- **Comprehensive Unit Testing**: Ensures the reliability of core functionalities through robust unit tests.
+- **Command Pattern Implementation with RelayCommand**: Facilitates efficient communication between ViewModels and the user interface through custom command bindings.
+- **Logging with SimpleLogger**: Tracks application events and methods to assist in debugging and monitoring user interactions.
+- **Configurable Initial Settings**: Allows users to customize initial parameters (such as starting money) via an `InitialSettings.txt` file.
+- **Stock Data Repository**: Provides a centralized repository for accessing stock-related data and retrieving initial application data.
+- **Game Restart Functionality**: Allows users to restart the game at any time to refresh their experience.
+- **Game Outcome Notifications**: Displays an overlay when specific thresholds are reached, indicating either a win or loss in the game.
+- **Price-Conditioned Stock Trading**: Enables users to buy or sell stocks based on specified price conditions (above/equal/below).
 
 ## Architecture
 
@@ -145,7 +157,7 @@ StockTradingApplication/
 Tests/
     └── MainWindowViewModelTests.cs    # Unit tests for validating MainViewModel behavior.
 ```
-## Application Flow
+### Application Flow
 
 - **Initialization**: The app reads `InitialSettings.txt` for stock limits and portfolio values.
   - Initial Stock values are provided by the `StockModelRepository.cs` default value, and are changed to be with random prices at the start of the run.
@@ -157,7 +169,7 @@ Tests/
   - **Stocks Management**: Stocks for sale list is updated based on successful trades, and the `StockViewModel` handles this data binding
 - **Victory/Loss Conditions**: The game logic is based on financial thresholds defined in the settings.
 
-## Commands and Controls
+### Commands and Controls
 
 - **Buy Stocks**: Purchase available stocks from the market.
 - **Sell Stocks**: Sell owned stocks, updating the portfolio.
@@ -166,7 +178,7 @@ Tests/
 - **Buy/Sell Stocks with price condition**: Buy/Sell all stocks that are above/equal/below a specified price.
 - **Restart**: Option to restart the game.
 
-## Logging
+### Logging
 
 The application uses a custom logging mechanism (`SimpleLogger.cs`) to track important events:
 
@@ -211,23 +223,15 @@ The `Tests` folder contains unit tests to ensure the functionality of the ViewMo
 6. Add more functionalities regarding stocks like lower number of stocks affect price or higher number of stocks affecting price
 7. Make the Application for multiple users at the same time, like one user trading is affecting another, and they both see the same values and same stocks in real-time
 
-## Contributing
+## Additional Documentation
 
-In order To contribute:
+### Changelog
+For a detailed list of changes, please see the [CHANGELOG.md](CHANGELOG.md).
 
-1. Fork the repository.
+### Contributing
 
-2. Create a new branch with your feature/fix:
-    ```bash
-    git checkout -b features\feature-name
-    ```
+If you want to contribute, please see the [CONTRIBUTING.md](CONTRIBUTING.md) for steps on how to do it.
 
-3. Commit your changes and open a pull request. Ensure all changes are tested before submitting a PR.
-4. Resolve any merge conflicts
-5. Wait for approval on the PR
-6. Fix and respond to any comments in the PR
-7. Once the PR is approved complete the merge and move to the main branch and pull the latest to see your action
+### License
 
-## License
-
-This project is licensed under the MIT License. See the LICENSE file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) for details.
