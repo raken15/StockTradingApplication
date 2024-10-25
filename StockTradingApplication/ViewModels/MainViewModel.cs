@@ -429,6 +429,10 @@ namespace StockTradingApplication.ViewModels
             RemainingTimeBeforeNextPriceUpdate = TimeSpan.FromSeconds(InitialSettingsDict["TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS"]);
             if (_timerUpdatePrices != null && _elapsedTimeTimer != null)
             {
+                _timerUpdatePrices.Stop();
+                _elapsedTimeTimer.Stop();
+                _timerUpdatePrices.Interval = TimeSpan.FromSeconds(InitialSettingsDict["TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS"]);
+                _elapsedTimeTimer.Interval = TimeSpan.FromSeconds(InitialSettingsDict["TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS"]);
                 _timerUpdatePrices.Start();
                 _elapsedTimeTimer.Start();
             }
