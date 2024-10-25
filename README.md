@@ -14,15 +14,21 @@ The solution also includes a comprehensive unit testing project to ensure the ro
 - [Overview](#overview)
 - [Demo Showcase](#demo-showcase)
 - [Installation](#installation)
+  - [Prerequisites](#prerequisites)
+  - [Steps](#steps)
 - [Usage](#usage)
+  - [Notes on Usage](#notes-on-usage)
 - [Features](#features)
 - [Architecture](#architecture)
   - [MVVM Pattern](#mvvm-pattern)
   - [Key Components](#key-components)
   - [Design and Code Improvements](#design-and-code-improvements)
 - [Flow and Structure](#flow-and-structure)
-- [Logging](#logging)
+  - [Application Flow](#application-flow)
+  - [Commands and Controls](#commands-and-controls)
+  - [Logging](#logging)
 - [Tests](#tests)
+- [Ideas for improvements in the future](#ideas-for-improvements-in-the-future)
 - [Changelog](#changelog)
 - [Contributing](#contributing)
 - [License](#license)
@@ -150,7 +156,7 @@ StockTradingApplication/
 Tests/
     └── MainWindowViewModelTests.cs    # Unit tests for validating MainViewModel behavior.
 ```
-## Application Flow
+### Application Flow
 
 - **Initialization**: The app reads `InitialSettings.txt` for stock limits and portfolio values.
   - Initial Stock values are provided by the `StockModelRepository.cs` default value, and are changed to be with random prices at the start of the run.
@@ -162,7 +168,7 @@ Tests/
   - **Stocks Management**: Stocks for sale list is updated based on successful trades, and the `StockViewModel` handles this data binding
 - **Victory/Loss Conditions**: The game logic is based on financial thresholds defined in the settings.
 
-## Commands and Controls
+### Commands and Controls
 
 - **Buy Stocks**: Purchase available stocks from the market.
 - **Sell Stocks**: Sell owned stocks, updating the portfolio.
@@ -171,7 +177,7 @@ Tests/
 - **Buy/Sell Stocks with price condition**: Buy/Sell all stocks that are above/equal/below a specified price.
 - **Restart**: Option to restart the game.
 
-## Logging
+### Logging
 
 The application uses a custom logging mechanism (`SimpleLogger.cs`) to track important events:
 
@@ -238,4 +244,4 @@ In order To contribute:
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+This project is licensed under the MIT License. See the [LICENSE file](LICENSE.md) for details.
