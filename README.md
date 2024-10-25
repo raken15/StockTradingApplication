@@ -67,14 +67,18 @@ The solution also includes a comprehensive unit testing project to ensure the ro
 
 ## Features
 
-- **Real-time stock price updates** with periodic randomization for simulation.
-- **Buy and sell stocks** with price and quantity conditions.
-- **Financial portfolio management**: Track assets and evaluate portfolio performance.
-- Implements the **MVVM pattern** for maintainability and testability.
-- **Robust unit tests** to ensure code reliability.
-- **Custom commands** using `RelayCommand` for efficient interaction between ViewModels and the UI.
-- **Logging** with `SimpleLogger` for tracking application events and debugging.
-- **Initial settings** like starting money is read from `InitialSettings.txt` and can be changed to have different initial settings.
+- **Real-Time Stock Price Updates**: with periodic randomization for simulation.
+- **Stock Trading Functionality**: Enables the buying and selling of stocks based on specific price and quantity criteria.
+- **Portfolio Management System**: Offers tools to monitor assets, track portfolio value, and evaluate overall performance.
+- **MVVM Architecture**: Implements the Model-View-ViewModel (MVVM) design pattern to enhance maintainability and testability of the application.
+- **Comprehensive Unit Testing**: Ensures the reliability of core functionalities through robust unit tests.
+- **Command Pattern Implementation with RelayCommand**: Facilitates efficient communication between ViewModels and the user interface through custom command bindings.
+- **Logging with SimpleLogger**: Tracks application events and methods to assist in debugging and monitoring user interactions.
+- **Configurable Initial Settings**: Allows users to customize initial parameters (such as starting money) via an `InitialSettings.txt` file.
+- **Stock Data Repository**: Provides a centralized repository for accessing stock-related data and retrieving initial application data.
+- **Game Restart Functionality**: Allows users to restart the game at any time to refresh their experience.
+- **Game Outcome Notifications**: Displays an overlay when specific thresholds are reached, indicating either a win or loss in the game.
+- **Price-Conditioned Stock Trading**: Enables users to buy or sell stocks based on specified price conditions (above/equal/below).
 
 ## Architecture
 
