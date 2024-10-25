@@ -5,11 +5,40 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Threading;
 using System.Windows.Input;
-using System.Windows;
 using System.IO;
 
 namespace StockTradingApplication.ViewModels
 {
+    /// <summary>
+    /// The `MainViewModel` class is the heart of the Stock Trading Application, adhering to the MVVM pattern.
+    /// It manages data and business logic, interacting with `StockModelRepository` and `FinancialPortfolioViewModel`.
+    /// </summary>
+    /// <remarks>
+    /// Key Principles:
+    /// - **MVVM**: Separates concerns into Model, View, and ViewModel.
+    /// - **Dependency Injection**: Injects `StockModelRepository` for loose coupling and testability.
+    /// - **Repository Pattern**: Abstracts data access.
+    /// - **Observer Pattern**: Updates the view via `PropertyChanged`.
+    /// - **Command Pattern**: Uses `RelayCommand` for user interactions.
+    ///
+    /// Flow and Structure:
+    /// - Initializes with `StockModelRepository` and `FinancialPortfolioViewModel`.
+    /// - Binds properties and commands to the view.
+    /// - Regularly updates stock prices and manages trades.
+    ///
+    /// Benefits:
+    /// - **Separation of Concerns**: Maintainable and understandable code.
+    /// - **Loose Coupling**: Easier testing and maintenance.
+    /// - **Reusability**: Commands and repositories are reusable.
+    /// - **Performance**: Timers and async updates for responsiveness.
+    ///
+    /// Best Practices:
+    /// - **Single Responsibility Principle**: Each class has a clear responsibility.
+    /// - **Open-Closed Principle**: Easily extensible without modifying existing code.
+    /// - **Dependency Inversion Principle**: High-level modules depend on abstractions.
+    ///
+    /// The `MainViewModel` class is structured, maintainable, and performant, making it a solid foundation for the Stock Trading Application.
+    /// </remarks>
     public class MainViewModel : INotifyPropertyChanged, IDisposable
     {
         #region Constants
@@ -400,6 +429,10 @@ namespace StockTradingApplication.ViewModels
             RemainingTimeBeforeNextPriceUpdate = TimeSpan.FromSeconds(InitialSettingsDict["TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS"]);
             if (_timerUpdatePrices != null && _elapsedTimeTimer != null)
             {
+                _timerUpdatePrices.Stop();
+                _elapsedTimeTimer.Stop();
+                _timerUpdatePrices.Interval = TimeSpan.FromSeconds(InitialSettingsDict["TIMER_UPDATE_PRICES_INTERVAL_IN_SECONDS"]);
+                _elapsedTimeTimer.Interval = TimeSpan.FromSeconds(InitialSettingsDict["TIMER_ELAPSED_TIME_INTERVAL_IN_SECONDS"]);
                 _timerUpdatePrices.Start();
                 _elapsedTimeTimer.Start();
             }

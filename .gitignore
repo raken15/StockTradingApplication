@@ -6,3 +6,5 @@ obj/
 *.suo
 *.userosscache
 *.sln.docstates
+# Ignore Log folder
+Logs/
