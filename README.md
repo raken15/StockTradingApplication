@@ -46,7 +46,7 @@ The solution also includes a comprehensive unit testing project to ensure the ro
 ### Installation Steps
 
 1. Navigate to the **Releases** section of this project.
-   - The latest release, **v1.0.0**, can be found [here](https://github.com/username/repo/releases/tag/v1.0.0).
+   - The latest release, **v1.0.0**, can be found [here][(https://github.com/raken15/StockTradingApplication/releases/tag/v1.0.0).
 2. Download the `StockTradingApplication_v1.0.0.zip` file.
 3. Extract the contents of the zip file.
 4. **(Optional)** To modify default settings (e.g., the starting money is set to $1000), update the `Assets/InitialSettings.txt` file:
