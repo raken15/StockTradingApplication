@@ -29,9 +29,10 @@ The solution also includes a comprehensive unit testing project to ensure the ro
   - [Logging](#logging)
 - [Tests](#tests)
 - [Ideas for improvements in the future](#ideas-for-improvements-in-the-future)
-- [Changelog](#changelog)
-- [Contributing](#contributing)
-- [License](#license)
+- [Additional Documentation](#additional-documentation)
+  - [Changelog](#changelog)
+  - [Contributing](#contributing)
+  - [License](#license)
 
 ## Installation
 
@@ -222,26 +223,15 @@ The `Tests` folder contains unit tests to ensure the functionality of the ViewMo
 6. Add more functionalities regarding stocks like lower number of stocks affect price or higher number of stocks affecting price
 7. Make the Application for multiple users at the same time, like one user trading is affecting another, and they both see the same values and same stocks in real-time
 
-## Changelog
+## Additional Documentation
+
+### Changelog
 For a detailed list of changes, please see the [CHANGELOG.md](CHANGELOG.md).
 
-## Contributing
+### Contributing
 
-In order To contribute:
+If you want to contribute, please see the [CONTRIBUTING.md](CONTRIBUTING.md) for steps on how to do it.
 
-1. Fork the repository.
-
-2. Create a new branch with your feature/fix:
-    ```bash
-    git checkout -b features\feature-name
-    ```
-
-3. Commit your changes and open a pull request. Ensure all changes are tested before submitting a PR.
-4. Resolve any merge conflicts
-5. Wait for approval on the PR
-6. Fix and respond to any comments in the PR
-7. Once the PR is approved complete the merge and move to the main branch and pull the latest to see your action
-
-## License
+### License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) for details.
