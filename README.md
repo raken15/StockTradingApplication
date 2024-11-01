@@ -46,18 +46,19 @@ The solution also includes a comprehensive unit testing project to ensure the ro
 ### Installation Steps
 
 1. Navigate to the **Releases** section of this project.
-   - The latest release, **v1.0.0**, can be found [here](https://github.com/raken15/StockTradingApplication/releases/tag/v1.0.0).
+   - The latest release can be found [here](https://github.com/raken15/StockTradingApplication/releases/).
 2. Download the `StockTradingApplication_v1.0.0.zip` file.
-3. Extract the contents of the zip file.
-4. **(Optional)** To modify default settings (e.g., the starting money is set to $1000), update the `Assets/InitialSettings.txt` file:
+   - Or any other release version zip file.
+4. Extract the contents of the zip file.
+5. **(Optional)** To modify default settings (e.g., the starting money is set to $1000), update the `Assets/InitialSettings.txt` file:
    - The settings must adhere to the following format:
      ```
      "Key string": "Value as string"
      ```
    - Any deviations from this format may result in errors.
-5. Run the `StockTradingApplication.exe` file.
-6. Use the user interface (UI) to manage stock trading activities. Prices will update automatically, allowing you to monitor the performance of your financial portfolio.
-7. The objective is to reach a winning amount of $10,000 (default) while avoiding a loss of $1 (default).
+6. Run the `StockTradingApplication.exe` file.
+7. Use the user interface (UI) to manage stock trading activities. Prices will update automatically, allowing you to monitor the performance of your financial portfolio.
+8. The objective is to reach a winning amount of $10,000 (default) while avoiding a loss of $1 (default).
 
 ## Building and Running the Project
 
